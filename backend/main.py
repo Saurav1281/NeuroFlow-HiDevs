@@ -9,10 +9,10 @@ from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
-from backend.config import settings
-from backend.db.pool import init_pool, close_pool
-from backend.db.health import check_postgres, check_redis, check_mlflow
-from backend.db.migrations import check_migrations
+from config import settings
+from db.pool import init_pool, close_pool
+from db.health import check_postgres, check_redis, check_mlflow
+from db.migrations import check_migrations
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 import httpx
 from redis.asyncio import Redis
-from backend.db.pool import get_pool
-from backend.config import settings
+from db.pool import get_pool
+from config import settings
 import logging
 
 logger = logging.getLogger(__name__)
