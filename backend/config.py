@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     JAEGER_HOST: str = "jaeger"
     JAEGER_PORT: int = 4317
     
+    # LLM Provider API keys
+    OPENAI_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
+    DEFAULT_LLM_MODEL: str = "gpt-4o-mini"
+    
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
