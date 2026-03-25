@@ -1,4 +1,4 @@
-from backend.db.pool import get_pool
+from db.pool import get_pool
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,6 +7,9 @@ async def check_migrations():
     """Verify if the expected tables have been created by docker initdb"""
     try:
         pool = get_pool()
+        if pool is None:
+            logger.warning("Skipping migration check as pool is not initialized.")
+            return
         async with pool.acquire() as conn:
             val = await conn.fetchval("SELECT to_regclass('public.chunks')")
             if not val:
