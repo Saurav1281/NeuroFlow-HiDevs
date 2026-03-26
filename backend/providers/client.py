@@ -16,11 +16,11 @@ from typing import AsyncGenerator, Optional
 from opentelemetry import trace
 from redis.asyncio import Redis
 
-from config import settings
-from providers.base import BaseLLMProvider, ChatMessage, GenerationResult
-from providers.openai_provider import OpenAIProvider
-from providers.anthropic_provider import AnthropicProvider
-from providers.router import (
+from backend.config import settings
+from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
+from backend.providers.openai_provider import OpenAIProvider
+from backend.providers.anthropic_provider import AnthropicProvider
+from backend.providers.router import (
     ModelRouter,
     RoutingCriteria,
     FallbackChain,

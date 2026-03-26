@@ -49,7 +49,9 @@ CREATE TABLE pipeline_runs (
   output_tokens INT,
   model_used TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'running',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  metadata JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ
 );
 
 -- Evaluations
@@ -63,6 +65,7 @@ CREATE TABLE evaluations (
   overall_score FLOAT,
   judge_model TEXT,
   user_rating INT CHECK (user_rating BETWEEN 1 AND 5),
+  metadata JSONB NOT NULL DEFAULT '{}',
   evaluated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

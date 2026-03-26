@@ -16,7 +16,7 @@ from typing import AsyncGenerator, Optional
 
 from redis.asyncio import Redis
 
-from providers.base import BaseLLMProvider, ChatMessage, GenerationResult
+from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,7 @@ from backend.config import settings
 from backend.db.pool import init_pool, close_pool
 from backend.db.health import check_postgres, check_redis, check_mlflow
 from backend.db.migrations import check_migrations
-from backend.api import query
+from backend.api import query, runs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,6 +43,7 @@ FastAPIInstrumentor.instrument_app(app)
 
 # Register routes
 app.include_router(query.router)
+app.include_router(runs.router)
 
 @app.get("/health")
 async def health_check():
