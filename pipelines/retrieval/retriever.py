@@ -22,13 +22,13 @@ class Retriever:
         self.query_processor = query_processor
         self.pool = get_pool()
 
-    async def retrieve(self, query: str, k: int = 20, use_hyde: bool = False) -> list[RetrievalResult]:
+    async def retrieve(self, query: str, k: int = 20, use_hyde: bool = False, processed_query: Optional[ProcessedQuery] = None) -> list[RetrievalResult]:
         """Runs three retrieval strategies in parallel and fuses results."""
         with tracer.start_as_current_span("retriever.retrieve") as span:
             span.set_attribute("query", query)
             span.set_attribute("use_hyde", use_hyde)
             
-            processed = await self.query_processor.process(query)
+            processed = processed_query or await self.query_processor.process(query)
             
             # Get embeddings for all query phrasings
             queries_to_embed = [query] + processed.expanded_queries

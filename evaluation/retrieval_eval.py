@@ -63,16 +63,17 @@ async def run_evaluation(use_hyde: bool = False):
         relevant_ids = test["relevant_chunk_ids"]
         
         try:
-            # Run retrieval
-            raw_results = await retriever.retrieve(query, k=10, use_hyde=use_hyde)
+            # Run retrieval via pipeline
+            pipeline_result = await pipeline.run(query, k=10)
+            raw_results = pipeline_result["reranked_results"]
             
             # Hit Rate @ 10
-            hit = any(r.chunk_id in relevant_ids for r in raw_results)
+            hit = any(r.chunk_id in relevant_ids for r in raw_results[:10])
             if hit:
                 hits += 1
                 
             # MRR @ 10
-            rank = next((i+1 for i, r in enumerate(raw_results) if r.chunk_id in relevant_ids), None)
+            rank = next((i+1 for i, r in enumerate(raw_results[:10]) if r.chunk_id in relevant_ids), None)
             if rank:
                 mrr_sum += 1.0 / rank
                 

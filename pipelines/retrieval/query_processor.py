@@ -35,13 +35,13 @@ class QueryProcessor:
 Query: "{query}"
 
 Tasks:
-1. Query Expansion: Generate 2-3 alternative phrasings that capture the same intent but use different terminology.
+1. Query Expansion: Generate 4-5 alternative phrasings that capture the same intent but use different terminology.
 2. Metadata Extraction: Identify any implicit filters (e.g., year, topic, document type). Return as a flat JSON dictionary.
 3. Classification: Classify the query as 'factual', 'analytical', 'comparative', or 'procedural'.
 
 Return the result in EXACTLY this JSON format:
 {{
-  "expanded_queries": ["query 1", "query 2"],
+  "expanded_queries": ["query 1", "query 2", "query 3", "query 4", "query 5"],
   "metadata_filters": {{"key": "value"}},
   "query_type": "factual"
 }}

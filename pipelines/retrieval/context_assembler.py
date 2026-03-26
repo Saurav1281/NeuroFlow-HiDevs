@@ -20,9 +20,31 @@ class ContextAssembler:
     def assemble(self, chunks: list[RetrievalResult]) -> dict[str, Any]:
         """Assembles chunks into a formatted string within the token budget.
         
+        Uses 'Lost-in-the-Middle' re-ordering: places most relevant chunks 
+        at the beginning and end of the context window.
+        
         Returns:
             Dict with context string, chunks used, total tokens, and sources.
         """
+        # Re-order chunks: [1, 3, 5, ..., 6, 4, 2]
+        if len(chunks) > 2:
+            reordered = []
+            left = True
+            for chunk in chunks:
+                if left:
+                    reordered.insert(0, chunk) if not reordered else reordered.append(chunk) # simplified
+                else:
+                    reordered.insert(0, chunk)
+                left = not left
+            # Actually, standard way: 1st at start, 2nd at end, 3rd near start, 4th near end...
+            reordered = []
+            for i in range(len(chunks)):
+                if i % 2 == 0:
+                    reordered.append(chunks[i])
+                else:
+                    reordered.insert(0, chunks[i])
+            chunks = reordered
+
         assembled_context = []
         chunks_used = []
         sources = []

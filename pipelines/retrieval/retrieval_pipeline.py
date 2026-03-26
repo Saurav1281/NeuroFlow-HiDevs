@@ -33,8 +33,11 @@ class RetrievalPipeline:
             
             logger.info(f"Running retrieval pipeline for: '{query}'")
             
-            # Step 1-3: Process and Retrieve
-            fused_results = await self.retriever.retrieve(query, k=40)
+            # Step 1: Process
+            processed = await self.query_processor.process(query)
+            
+            # Step 2-3: Retrieve
+            fused_results = await self.retriever.retrieve(query, k=50, processed_query=processed)
             span.set_attribute("num_fused_results", len(fused_results))
             
             # Step 4: Reranking
@@ -50,5 +53,9 @@ class RetrievalPipeline:
             top_k = reranked_results[:k]
             context_data = self.context_assembler.assemble(top_k)
             span.set_attribute("total_tokens", context_data.get("total_tokens", 0))
+            
+            # Add reranked results for evaluation
+            context_data["reranked_results"] = reranked_results
+            context_data["query_type"] = processed.query_type
             
             return context_data
