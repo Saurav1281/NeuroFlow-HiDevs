@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "hit_rate": 0.78,
+    "mrr": 0.59
+  },
+  "hyde": {
+    "hit_rate": 0.82,
+    "mrr": 0.63
+  },
+  "improvement": {
+    "hit_rate_diff": 0.04,
+    "mrr_diff": 0.04
+  }
+}
