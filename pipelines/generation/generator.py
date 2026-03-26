@@ -111,12 +111,15 @@ class Generator:
 
     async def _log_initial_run(self, run_id: uuid.UUID, pipeline_id: uuid.UUID, messages: list[dict]):
         async with self.pool.acquire() as conn:
+            # Fetch version for the given pipeline_id
+            version = await conn.fetchval("SELECT version FROM pipelines WHERE id = $1", pipeline_id)
+            
             await conn.execute(
                 """
-                INSERT INTO pipeline_runs (id, pipeline_id, prompt, status, created_at)
-                VALUES ($1, $2, $3, $4, NOW())
+                INSERT INTO pipeline_runs (id, pipeline_id, pipeline_version, prompt, status, created_at)
+                VALUES ($1, $2, $3, $4, $5, NOW())
                 """,
-                run_id, pipeline_id, json.dumps(messages), "running"
+                run_id, pipeline_id, version, json.dumps(messages), "running"
             )
 
     async def _update_final_run(self, run_id: uuid.UUID, generation: str, input_tokens: int, output_tokens: int, latency_ms: float, metadata: dict):

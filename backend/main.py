@@ -44,6 +44,8 @@ FastAPIInstrumentor.instrument_app(app)
 # Register routes
 app.include_router(query.router)
 app.include_router(runs.router)
+app.include_router(pipelines.router)
+app.include_router(compare.router)
 
 @app.get("/health")
 async def health_check():
