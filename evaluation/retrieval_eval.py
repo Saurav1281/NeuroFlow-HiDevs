@@ -64,7 +64,12 @@ async def run_evaluation(use_hyde: bool = False):
         
         try:
             # Run retrieval via pipeline
-            pipeline_result = await pipeline.run(query, k=10)
+            pipeline_result = await pipeline.run(
+                query, 
+                k=10, 
+                use_hyde=use_hyde, 
+                search_k=100
+            ) # Passing use_hyde correctly
             raw_results = pipeline_result["reranked_results"]
             
             # Hit Rate @ 10

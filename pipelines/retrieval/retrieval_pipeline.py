@@ -25,19 +25,32 @@ class RetrievalPipeline:
         self.reranker = reranker
         self.context_assembler = context_assembler
 
-    async def run(self, query: str, k: int = 10, use_local_reranker: bool = True) -> dict[str, Any]:
+    async def run(
+        self, 
+        query: str, 
+        k: int = 10, 
+        use_hyde: bool = True,
+        search_k: int = 100,
+        use_local_reranker: bool = True
+    ) -> dict[str, Any]:
         """Runs the full retrieval pipeline with tracing."""
         with tracer.start_as_current_span("retrieval_pipeline.run") as span:
             span.set_attribute("query", query)
             span.set_attribute("k", k)
+            span.set_attribute("use_hyde", use_hyde)
             
-            logger.info(f"Running retrieval pipeline for: '{query}'")
+            logger.info(f"Running retrieval pipeline for: '{query}' (HyDE: {use_hyde})")
             
             # Step 1: Process
             processed = await self.query_processor.process(query)
             
             # Step 2-3: Retrieve
-            fused_results = await self.retriever.retrieve(query, k=50, processed_query=processed)
+            fused_results = await self.retriever.retrieve(
+                query, 
+                k=search_k, 
+                use_hyde=use_hyde, 
+                processed_query=processed
+            )
             span.set_attribute("num_fused_results", len(fused_results))
             
             # Step 4: Reranking

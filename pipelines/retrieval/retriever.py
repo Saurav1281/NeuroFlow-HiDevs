@@ -31,7 +31,8 @@ class Retriever:
             processed = processed_query or await self.query_processor.process(query)
             
             # 1. Get embeddings for all query phrasings
-            queries_to_embed = [query] + processed.expanded_queries + processed.step_back_queries
+            # We include original, expanded, step-back AND sub-queries
+            queries_to_embed = [query] + processed.expanded_queries + processed.step_back_queries + processed.sub_queries
             
             if use_hyde:
                 hyde_answer = await self._generate_hypothetical_answer(query)
@@ -40,8 +41,8 @@ class Retriever:
             embeddings = await self.llm_client.embed(queries_to_embed)
             
             # 2. Parallel retrieval across strategies
-            # We use a subset of queries for sparse search to avoid excessive DB load
-            sparse_query_text = " ".join([query] + processed.expanded_queries[:2])
+            # We use more expansions for sparse search to improve recall
+            sparse_query_text = " ".join([query] + processed.expanded_queries[:4] + processed.sub_queries[:2])
             
             results = await asyncio.gather(
                 self._dense_retrieval(embeddings, k),
@@ -54,9 +55,14 @@ class Retriever:
             return fused
 
     async def _generate_hypothetical_answer(self, query: str) -> str:
-        """Generates a hypothetical answer for HyDE."""
+        """Generates a high-quality hypothetical technical answer for HyDE."""
         with tracer.start_as_current_span("retriever._generate_hyde") as span:
-            prompt = f"Write a brief hypothetical answer to: {query}"
+            prompt = f"""Write a detailed, high-quality hypothetical technical documentation paragraph that answers the query below. 
+The paragraph should sound like it comes from a professional AI research paper or technical manual. Use technical terminology appropriately.
+
+Query: {query}
+
+Hypothetical Documentation:"""
             try:
                 result = await self.llm_client.chat(
                     messages=[ChatMessage(role="user", content=prompt)],

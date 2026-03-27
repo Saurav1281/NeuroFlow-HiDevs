@@ -17,6 +17,7 @@ class ProcessedQuery:
     original_query: str
     expanded_queries: list[str]
     step_back_queries: list[str]
+    sub_queries: list[str]
     metadata_filters: dict[str, Any]
     query_type: str  # factual, analytical, comparative, procedural
 
@@ -31,20 +32,22 @@ class QueryProcessor:
         with tracer.start_as_current_span("query_processor.process") as span:
             span.set_attribute("query", query)
             
-            # 1. Generate expansions, filters, and classification
-            prompt = f"""Analyze the following user query for a RAG system.
+                # 1. Generate expansions, filters, and classification
+            prompt = f"""Analyze the following technical user query for a NeurFlow RAG system.
 Query: "{query}"
 
 Tasks:
-1. Query Expansion: Generate 5-6 alternative phrasings that use different terminology but capture the same intent.
-2. Step-Back Prompting: Generate 2-3 higher-level, more general "step-back" questions that provide the broader context or principles related to the query.
-3. Metadata Extraction: Identify any implicit filters (e.g., year, topic, document type, author). Return as a flat JSON dictionary.
-4. Classification: Classify the query as 'factual', 'analytical', 'comparative', or 'procedural'.
+1. Query Expansion: Generate 8 alternative phrasings. Use diverse technical terminology, synonyms, and related concepts. Focus on how this might be phrased in research papers vs. documentation.
+2. Step-Back Prompting: Generate 3 higher-level questions that capture the underlying principles or broader context of the query.
+3. Sub-Queries: If the query is complex, break it into 2-3 simpler sub-questions that need to be answered to satisfy the original intent.
+4. Metadata Extraction: Identify implicit filters (e.g., topic: 'Transformers', author, year). Return as a flat JSON dictionary.
+5. Classification: Classify as 'factual', 'analytical', 'comparative', or 'procedural'.
 
 Return the result in EXACTLY this JSON format:
 {{
-  "expanded_queries": ["query 1", "query 2", "query 3", "query 4", "query 5", "query 6"],
-  "step_back_queries": ["step-back 1", "step-back 2"],
+  "expanded_queries": ["...", "..."],
+  "step_back_queries": ["...", "..."],
+  "sub_queries": ["...", "..."],
   "metadata_filters": {{"key": "value"}},
   "query_type": "factual"
 }}
@@ -67,6 +70,7 @@ Return the result in EXACTLY this JSON format:
                     original_query=query,
                     expanded_queries=data.get("expanded_queries", []),
                     step_back_queries=data.get("step_back_queries", []),
+                    sub_queries=data.get("sub_queries", []),
                     metadata_filters=data.get("metadata_filters", {}),
                     query_type=data.get("query_type", "factual")
                 )
@@ -84,6 +88,7 @@ Return the result in EXACTLY this JSON format:
                     original_query=query,
                     expanded_queries=[],
                     step_back_queries=[],
+                    sub_queries=[],
                     metadata_filters={},
                     query_type="factual"
                 )
