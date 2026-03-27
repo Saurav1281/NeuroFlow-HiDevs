@@ -44,7 +44,7 @@ class RetrievalPipeline:
             reranked_results = await self.reranker.rerank(
                 query=query,
                 candidates=fused_results,
-                top_n=40,
+                top_n=100,
                 use_local=use_local_reranker
             )
             span.set_attribute("num_reranked_results", len(reranked_results))

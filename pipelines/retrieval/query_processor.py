@@ -16,6 +16,7 @@ tracer = trace.get_tracer("neuroflow.retrieval")
 class ProcessedQuery:
     original_query: str
     expanded_queries: list[str]
+    step_back_queries: list[str]
     metadata_filters: dict[str, Any]
     query_type: str  # factual, analytical, comparative, procedural
 
@@ -35,13 +36,15 @@ class QueryProcessor:
 Query: "{query}"
 
 Tasks:
-1. Query Expansion: Generate 4-5 alternative phrasings that capture the same intent but use different terminology.
-2. Metadata Extraction: Identify any implicit filters (e.g., year, topic, document type). Return as a flat JSON dictionary.
-3. Classification: Classify the query as 'factual', 'analytical', 'comparative', or 'procedural'.
+1. Query Expansion: Generate 5-6 alternative phrasings that use different terminology but capture the same intent.
+2. Step-Back Prompting: Generate 2-3 higher-level, more general "step-back" questions that provide the broader context or principles related to the query.
+3. Metadata Extraction: Identify any implicit filters (e.g., year, topic, document type, author). Return as a flat JSON dictionary.
+4. Classification: Classify the query as 'factual', 'analytical', 'comparative', or 'procedural'.
 
 Return the result in EXACTLY this JSON format:
 {{
-  "expanded_queries": ["query 1", "query 2", "query 3", "query 4", "query 5"],
+  "expanded_queries": ["query 1", "query 2", "query 3", "query 4", "query 5", "query 6"],
+  "step_back_queries": ["step-back 1", "step-back 2"],
   "metadata_filters": {{"key": "value"}},
   "query_type": "factual"
 }}
@@ -63,12 +66,14 @@ Return the result in EXACTLY this JSON format:
                 processed = ProcessedQuery(
                     original_query=query,
                     expanded_queries=data.get("expanded_queries", []),
+                    step_back_queries=data.get("step_back_queries", []),
                     metadata_filters=data.get("metadata_filters", {}),
                     query_type=data.get("query_type", "factual")
                 )
                 
                 span.set_attribute("query_type", processed.query_type)
                 span.set_attribute("num_expansions", len(processed.expanded_queries))
+                span.set_attribute("num_step_back", len(processed.step_back_queries))
                 return processed
                 
             except Exception as e:
@@ -78,6 +83,7 @@ Return the result in EXACTLY this JSON format:
                 return ProcessedQuery(
                     original_query=query,
                     expanded_queries=[],
+                    step_back_queries=[],
                     metadata_filters={},
                     query_type="factual"
                 )
