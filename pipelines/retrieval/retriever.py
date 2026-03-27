@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import json
-from typing import Any
+from typing import Any, Optional
 from opentelemetry import trace
 
 from backend.db.pool import get_pool
@@ -22,16 +22,16 @@ class Retriever:
         self.query_processor = query_processor
         self.pool = get_pool()
 
-    async def retrieve(self, query: str, k: int = 20, use_hyde: bool = False, processed_query: Optional[ProcessedQuery] = None) -> list[RetrievalResult]:
-        """Runs three retrieval strategies in parallel and fuses results."""
+    async def retrieve(self, query: str, k: int = 100, use_hyde: bool = True, processed_query: Optional[ProcessedQuery] = None) -> list[RetrievalResult]:
+        """Runs four retrieval strategies (Dense, Sparse, Step-Back, Metadata) and fuses results."""
         with tracer.start_as_current_span("retriever.retrieve") as span:
             span.set_attribute("query", query)
             span.set_attribute("use_hyde", use_hyde)
             
             processed = processed_query or await self.query_processor.process(query)
             
-            # Get embeddings for all query phrasings
-            queries_to_embed = [query] + processed.expanded_queries
+            # 1. Get embeddings for all query phrasings
+            queries_to_embed = [query] + processed.expanded_queries + processed.step_back_queries
             
             if use_hyde:
                 hyde_answer = await self._generate_hypothetical_answer(query)
@@ -39,10 +39,13 @@ class Retriever:
                 
             embeddings = await self.llm_client.embed(queries_to_embed)
             
-            # Run three strategies in parallel
+            # 2. Parallel retrieval across strategies
+            # We use a subset of queries for sparse search to avoid excessive DB load
+            sparse_query_text = " ".join([query] + processed.expanded_queries[:2])
+            
             results = await asyncio.gather(
                 self._dense_retrieval(embeddings, k),
-                self._sparse_retrieval(query, k),
+                self._sparse_retrieval(sparse_query_text, k),
                 self._metadata_retrieval(processed.metadata_filters, embeddings[0], k)
             )
             
