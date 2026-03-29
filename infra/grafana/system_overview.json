@@ -29,35 +29,38 @@
       ]
     },
     {
-      "title": "Retrieval Latency (P95)",
+      "title": "Retrieval Latency (P50/P95)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(neuroflow_retrieval_latency_seconds_bucket[5m])))", "legendFormat": "P95 Latency" }
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(neuroflow_retrieval_latency_seconds_bucket[5m])))", "legendFormat": "P95 Latency" },
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(neuroflow_retrieval_latency_seconds_bucket[5m])))", "legendFormat": "P50 Latency" }
       ]
     },
     {
-      "title": "Generation Latency (P95)",
+      "title": "Generation Latency (P50/P95)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(neuroflow_generation_latency_seconds_bucket[5m])))", "legendFormat": "P95 Latency" }
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(neuroflow_generation_latency_seconds_bucket[5m])))", "legendFormat": "P95 Latency" },
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(neuroflow_generation_latency_seconds_bucket[5m])))", "legendFormat": "P50 Latency" }
       ]
     },
     {
-      "title": "LLM Cost (Estimated USD/hr)",
-      "type": "gauge",
+      "title": "Queue Depth & Cost",
+      "type": "timeseries",
       "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
       "targets": [
-        { "expr": "sum(rate(neuroflow_llm_cost_usd[1h])) * 3600" }
+        { "expr": "neuroflow_queue_depth", "legendFormat": "Queue Depth" },
+        { "expr": "sum(rate(neuroflow_llm_cost_usd[1h])) * 3600", "legendFormat": "USD/hr" }
       ]
     },
     {
-      "title": "Circuit Breakers Open",
-      "type": "stat",
+      "title": "Circuit Breaker Status",
+      "type": "state-timeline",
       "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
       "targets": [
-        { "expr": "neuroflow_circuit_breakers_open" }
+        { "expr": "neuroflow_circuit_breaker_trips_total", "legendFormat": "{{provider}}" }
       ]
     }
   ],

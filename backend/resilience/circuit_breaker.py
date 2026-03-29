@@ -5,6 +5,8 @@ from enum import Enum
 from typing import Callable, Any, Optional
 from redis.asyncio import Redis
 
+from backend.monitoring.metrics import circuit_breaker_trips, active_circuit_breakers_open
+
 logger = logging.getLogger(__name__)
 
 class State(Enum):
@@ -24,6 +26,7 @@ class CircuitBreaker:
     ):
         self.redis = redis
         self.name = f"cb:{name}"
+        self.provider = name # Store provider name for metrics
         self.threshold = threshold
         self.recovery_timeout = recovery_timeout
         self._state_key = f"{self.name}:state"
@@ -37,8 +40,16 @@ class CircuitBreaker:
         return State(state.decode())
 
     async def _set_state(self, state: State):
+        old_state = await self._get_state()
         await self.redis.set(self._state_key, state.value)
         logger.info(f"Circuit Breaker '{self.name}' state changed to {state.value}")
+        
+        # Update metrics
+        if state == State.OPEN and old_state != State.OPEN:
+            circuit_breaker_trips.labels(provider=self.provider).inc()
+            active_circuit_breakers_open.inc()
+        elif old_state == State.OPEN and state != State.OPEN:
+            active_circuit_breakers_open.dec()
 
     async def call(self, func: Callable, *args, **kwargs) -> Any:
         state = await self._get_state()

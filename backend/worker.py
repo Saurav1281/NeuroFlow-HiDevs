@@ -9,6 +9,8 @@ from backend.db.pool import get_pool
 from backend.providers.client import NeuroFlowClient
 from evaluation.judge import EvaluationJudge
 from backend.config import settings
+from backend.monitoring.metrics import queue_depth
+from backend.monitoring.anomaly_observer import AnomalyObserver
 
 # Configure logging
 logging.basicConfig(
@@ -26,6 +28,7 @@ class EvaluationWorker:
         )
         self.llm_client = NeuroFlowClient(self.redis)
         self.judge = None
+        self.anomaly_observer = AnomalyObserver()
         self.running = False
 
     async def setup(self):
@@ -37,13 +40,22 @@ class EvaluationWorker:
         self.running = True
         logger.info("Worker started, listening for evaluation jobs...")
         
+        # Start AnomalyObserver in the background
+        asyncio.create_task(self.anomaly_observer.start())
+        
         while self.running:
             try:
+                # Update queue depth metric
+                depth = await self.redis.llen("evaluation_queue")
+                queue_depth.set(depth)
+                
                 # BLPOP blocks until an item is available
-                # 0 means wait indefinitely
                 job_data = await self.redis.blpop("evaluation_queue", timeout=5)
                 
                 if job_data:
+                    # Metric update immediately after popping
+                    queue_depth.set(await self.redis.llen("evaluation_queue"))
+                    
                     _, payload = job_data
                     job = json.loads(payload)
                     run_id = job.get("run_id")

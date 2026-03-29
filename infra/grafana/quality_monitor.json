@@ -16,28 +16,45 @@
   "liveNow": false,
   "panels": [
     {
-      "title": "Faithfulness Score (24h Avg)",
+      "title": "Faithfulness (24h Avg)",
       "type": "gauge",
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
       "targets": [{ "expr": "avg_over_time(neuroflow_eval_faithfulness[24h])" }]
     },
     {
       "title": "Answer Relevance (24h Avg)",
       "type": "gauge",
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
       "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
     },
     {
-      "title": "Overall Score Trend",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "targets": [{ "expr": "neuroflow_eval_overall", "legendFormat": "{{pipeline_id}}" }]
+      "title": "Context Precision (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
     },
     {
-      "title": "Documents Ingested Per Day",
+      "title": "Context Recall (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
+    },
+    {
+      "title": "Overall Score Trend (7-Day)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "targets": [{ "expr": "sum(increase(neuroflow_ingestion_docs_total[24h]))", "legendFormat": "Total Docs" }]
+      "gridPos": { "h": 10, "w": 16, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "neuroflow_eval_overall", "legendFormat": "Latest Score" },
+        { "expr": "avg_over_time(neuroflow_eval_overall[7d])", "legendFormat": "7d Moving Average" }
+      ]
+    },
+    {
+      "title": "Fine-tuning & Ingestion History",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 8, "x": 16, "y": 6 },
+      "targets": [
+        { "expr": "sum by (source_type) (increase(neuroflow_ingestion_docs_total[24h]))" }
+      ]
     }
   ],
   "refresh": "5s",
