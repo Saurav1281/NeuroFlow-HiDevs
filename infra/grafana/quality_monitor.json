@@ -1,0 +1,54 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "expr": "neuroflow_eval_overall < 0.65",
+        "name": "Quality Degradation",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Faithfulness Score (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_faithfulness[24h])" }]
+    },
+    {
+      "title": "Answer Relevance (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
+    },
+    {
+      "title": "Overall Score Trend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [{ "expr": "neuroflow_eval_overall", "legendFormat": "{{pipeline_id}}" }]
+    },
+    {
+      "title": "Documents Ingested Per Day",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [{ "expr": "sum(increase(neuroflow_ingestion_docs_total[24h]))", "legendFormat": "Total Docs" }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["neuroflow", "quality"],
+  "templating": { "list": [] },
+  "time": { "from": "now-7d", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "NeuroFlow — Quality Monitor",
+  "uid": "neuroflow-quality",
+  "version": 1
+}
