@@ -12,6 +12,8 @@ from evaluation.metrics.answer_relevance import evaluate_answer_relevance
 from evaluation.metrics.context_precision import evaluate_context_precision
 from evaluation.metrics.context_recall import evaluate_context_recall
 
+from backend.monitoring.metrics import eval_faithfulness, eval_overall
+
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer("neuroflow.evaluation")
 
@@ -39,23 +41,44 @@ class EvaluationJudge:
         with tracer.start_as_current_span("evaluation.judge") as span:
             span.set_attribute("run_id", run_id)
             
+            # Fetch pipeline_id for metrics
+            async with self.pool.acquire() as conn:
+                pipeline_id = await conn.fetchval(
+                    "SELECT pipeline_id FROM pipeline_runs WHERE id = $1", 
+                    uuid.UUID(run_id)
+                )
+            pipeline_id_str = str(pipeline_id) if pipeline_id else "unknown"
+            span.set_attribute("pipeline_id", pipeline_id_str)
+            
             num_runs = 3 if self_consistency else 1
             all_metrics_runs = []
-            
-            # Faithfulness needs the full context string
             context_str = "\n\n".join(context_chunks)
             
             for i in range(num_runs):
-                # Run all four metrics in parallel via asyncio.gather
-                # Total time should be ~1 LLM call latency (as they run in parallel)
-                metrics_tasks = [
-                    evaluate_faithfulness(query, answer, context_str, self.llm_client),
-                    evaluate_answer_relevance(query, answer, self.llm_client),
-                    evaluate_context_precision(query, context_chunks, answer, self.llm_client),
-                    evaluate_context_recall(query, context_chunks, answer, self.llm_client)
-                ]
+                # Run all four metrics in parallel with individual spans
+                async def wrapped_faithfulness():
+                    with tracer.start_as_current_span("evaluation.faithfulness"):
+                        return await evaluate_faithfulness(query, answer, context_str, self.llm_client)
                 
-                results = await asyncio.gather(*metrics_tasks)
+                async def wrapped_relevance():
+                    with tracer.start_as_current_span("evaluation.answer_relevance"):
+                        return await evaluate_answer_relevance(query, answer, self.llm_client)
+                
+                async def wrapped_precision():
+                    with tracer.start_as_current_span("evaluation.context_precision"):
+                        return await evaluate_context_precision(query, context_chunks, answer, self.llm_client)
+                
+                async def wrapped_recall():
+                    with tracer.start_as_current_span("evaluation.context_recall"):
+                        return await evaluate_context_recall(query, context_chunks, answer, self.llm_client)
+
+                results = await asyncio.gather(
+                    wrapped_faithfulness(),
+                    wrapped_relevance(),
+                    wrapped_precision(),
+                    wrapped_recall()
+                )
+                
                 all_metrics_runs.append({
                     "faithfulness": results[0],
                     "answer_relevance": results[1],
@@ -77,7 +100,11 @@ class EvaluationJudge:
                 0.15 * avg_recall
             )
             
-            # Self-consistency check (standard deviation across runs)
+            # Update Prometheus Gauges
+            eval_faithfulness.labels(pipeline_id=pipeline_id_str).set(avg_faithfulness)
+            eval_overall.labels(pipeline_id=pipeline_id_str).set(overall_score)
+            
+            # Self-consistency check
             all_run_overalls = [
                 0.35 * r["faithfulness"] + 0.30 * r["answer_relevance"] + 
                 0.20 * r["context_precision"] + 0.15 * r["context_recall"]
@@ -86,23 +113,13 @@ class EvaluationJudge:
             std_dev = float(np.std(all_run_overalls)) if len(all_run_overalls) > 1 else 0.0
             high_variance = std_dev > 0.2
             
-            # Set span attributes for observability
+            # Set span attributes
             span.set_attribute("faithfulness", avg_faithfulness)
             span.set_attribute("answer_relevance", avg_relevance)
             span.set_attribute("context_precision", avg_precision)
             span.set_attribute("context_recall", avg_recall)
             span.set_attribute("overall_score", overall_score)
-            span.set_attribute("std_dev", std_dev)
-            span.set_attribute("high_variance", high_variance)
 
-            # Record result in evaluations table
-            judge_model = "gpt-4o" 
-            eval_metadata = {
-                "std_dev": std_dev,
-                "high_variance": high_variance,
-                "num_consistency_runs": num_runs
-            }
-            
             await self._save_evaluation(
                 run_id=uuid.UUID(run_id),
                 faithfulness=avg_faithfulness,
@@ -110,11 +127,14 @@ class EvaluationJudge:
                 precision=avg_precision,
                 recall=avg_recall,
                 overall=overall_score,
-                judge_model=judge_model,
-                metadata=eval_metadata
+                judge_model="gpt-4o",
+                metadata={
+                    "std_dev": std_dev,
+                    "high_variance": high_variance,
+                    "num_consistency_runs": num_runs
+                }
             )
             
-            # If high quality, extract as training pair candidate
             if overall_score > 0.8:
                 await self._extract_training_pair(run_id, overall_score)
                 

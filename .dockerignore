@@ -1,0 +1,9 @@
+**/venv
+**/.git
+**/__pycache__
+frontend/
+node_modules/
+training_data/
+tmp/
+*.log
+.env

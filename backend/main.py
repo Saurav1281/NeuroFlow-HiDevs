@@ -8,6 +8,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from redis.asyncio import Redis
 
 from backend.config import settings
 from backend.db.pool import init_pool, close_pool, get_pool
@@ -22,7 +23,19 @@ from backend.resilience.backpressure import BackpressureManager
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ... (opentelemetry config)
+# Setup opentelemetry tracing
+resource = Resource(attributes={
+    SERVICE_NAME: "neuroflow-api"
+})
+provider = TracerProvider(resource=resource)
+# Using gRPC exporter to Jaeger
+otlp_exporter = OTLPSpanExporter(
+    endpoint=f"http://{settings.JAEGER_HOST}:{settings.JAEGER_PORT}",
+    insecure=True
+)
+processor = BatchSpanProcessor(otlp_exporter)
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,9 +43,14 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up resources...")
     await init_pool()
     # Initialize Resilience
-    app.state.redis = get_pool() # Assuming redis pool is same as pg for now or needs separate init
-    app.state.cb = CircuitBreaker(app.state.redis, "llm_api")
-    app.state.limiter = RateLimiter(app.state.redis)
+    app.state.redis_client = Redis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        password=settings.REDIS_PASSWORD,
+        decode_responses=False # CB expects bytes default
+    )
+    app.state.cb = CircuitBreaker(app.state.redis_client, "llm_api")
+    app.state.limiter = RateLimiter(app.state.redis_client)
     app.state.backpressure = BackpressureManager(max_buffer_size=100)
     
     await check_migrations()
@@ -40,6 +58,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Shutting down resources...")
     await close_pool()
+    await app.state.redis_client.aclose()
 
 app = FastAPI(lifespan=lifespan, title="NeuroFlow API")
 
