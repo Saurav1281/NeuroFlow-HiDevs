@@ -30,7 +30,7 @@ class EvaluationWorker:
 
     async def setup(self):
         await self.llm_client.initialize()
-        self.judge = EvaluationJudge(self.llm_client)
+        self.judge = EvaluationJudge(self.llm_client, self.redis)
         logger.info("EvaluationWorker initialized and ready.")
 
     async def run(self):

@@ -13,7 +13,7 @@ from backend.config import settings
 from backend.db.pool import init_pool, close_pool, get_pool
 from backend.db.health import check_postgres, check_redis, check_mlflow
 from backend.db.migrations import check_migrations
-from backend.api import query, runs, pipelines, compare
+from backend.api import query, runs, pipelines, compare, evaluations, documents
 
 from backend.resilience.circuit_breaker import CircuitBreaker, State
 from backend.resilience.rate_limiter import RateLimiter
@@ -49,7 +49,10 @@ FastAPIInstrumentor.instrument_app(app)
 # Register routes
 app.include_router(query.router)
 app.include_router(runs.router)
-# ...
+app.include_router(pipelines.router)
+app.include_router(compare.router)
+app.include_router(evaluations.router)
+app.include_router(documents.router)
 
 @app.get("/health")
 async def health_check():

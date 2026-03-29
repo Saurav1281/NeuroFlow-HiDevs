@@ -21,9 +21,10 @@ class EvaluationJudge:
     Runs faithfulness, relevance, precision, and recall in parallel.
     """
     
-    def __init__(self, llm_client: Any):
+    def __init__(self, llm_client: Any, redis: Optional[Any] = None):
         self.llm_client = llm_client
         self.pool = get_pool()
+        self.redis = redis
 
     async def evaluate_run(
         self, 
@@ -138,6 +139,35 @@ class EvaluationJudge:
                 """,
                 run_id, faithfulness, relevance, precision, recall, overall, judge_model, json.dumps(metadata)
             )
+            
+            # Publish to Redis for real-time SSE feed
+            if self.redis:
+                try:
+                    # Fetch extra details for the feed
+                    row = await conn.fetchrow(
+                        """
+                        SELECT pr.query, p.name as pipeline_name 
+                        FROM pipeline_runs pr
+                        JOIN pipelines p ON pr.pipeline_id = p.id
+                        WHERE pr.id = $1
+                        """,
+                        run_id
+                    )
+                    
+                    event_data = {
+                        "run_id": str(run_id),
+                        "query": row["query"] if row else "Unknown",
+                        "pipeline_name": row["pipeline_name"] if row else "Unknown",
+                        "faithfulness": faithfulness,
+                        "relevance": relevance,
+                        "precision": precision,
+                        "recall": recall,
+                        "overall_score": overall,
+                        "timestamp": "now" # Frontend will handle or we can use ISO
+                    }
+                    await self.redis.publish("evaluations:new", json.dumps(event_data))
+                except Exception as e:
+                    logger.error(f"Failed to publish evaluation to Redis: {e}")
 
     async def _extract_training_pair(self, run_id, score):
         async with self.pool.acquire() as conn:
