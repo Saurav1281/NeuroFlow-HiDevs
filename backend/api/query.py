@@ -17,9 +17,13 @@ from pipelines.retrieval.reranker import Reranker
 from pipelines.retrieval.context_assembler import ContextAssembler
 from pipelines.retrieval.retrieval_pipeline import RetrievalPipeline
 from pipelines.generation.generator import Generator
+from backend.security.auth import get_current_user
+from backend.security.prompt_injection import validate_query_safe
+from backend.security.validators import validate_query
+from fastapi import Security
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/query", tags=["query"])
+router = APIRouter(tags=["query"])
 
 # In-memory store for pending queries (could use Redis for production)
 pending_queries = {}
@@ -46,9 +50,16 @@ async def create_query(
     pipeline_id: uuid.UUID = Body(..., embed=True),
     stream: bool = Body(True, embed=True),
     pipeline_tools = Depends(get_pipeline_tools),
-    redis = Depends(get_redis)
+    redis = Depends(get_redis),
+    current_user = Security(get_current_user, scopes=["query"])
 ):
     pipeline, llm_client = pipeline_tools
+    
+    # 1. Input Validation
+    query = validate_query(query)
+    
+    # 2. Prompt Injection Defense (L1 & L2)
+    injection_metadata = await validate_query_safe(query, llm_client)
     
     if not stream:
         # Synchronous execution
@@ -71,7 +82,8 @@ async def create_query(
             "run_id": run_id,
             "response": response_text,
             "citations": citations,
-            "sources": context_data.get("sources", [])
+            "sources": context_data.get("sources", []),
+            "metadata": injection_metadata
         }
     
     # SSE flow: Store query and return run_id

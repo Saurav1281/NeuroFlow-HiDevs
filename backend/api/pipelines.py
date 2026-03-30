@@ -3,21 +3,32 @@ import logging
 import json
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi import APIRouter, HTTPException, Body, Security, Depends
 from backend.db.pool import get_pool
 from backend.models.pipeline import PipelineConfig
 from backend.utils.logger import handle_errors
+from backend.security.auth import get_current_user
+from backend.security.validators import validate_pipeline_name, sanitize_text
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/pipelines", tags=["pipelines"])
+router = APIRouter(tags=["pipelines"])
 
 @router.post("", response_model=dict)
 @handle_errors
-async def create_pipeline(config: PipelineConfig):
+async def create_pipeline(
+    config: PipelineConfig,
+    current_user = Security(get_current_user, scopes=["admin"])
+):
     """
     Create a new pipeline or a new version if name already exists.
     """
     pool = get_pool()
+    
+    # Sanitize inputs
+    config.name = validate_pipeline_name(config.name)
+    if config.description:
+        config.description = sanitize_text(config.description)
+        
     async with pool.acquire() as conn:
         # Check if pipeline exists to determine version
         existing = await conn.fetchval(
@@ -124,7 +135,11 @@ async def get_pipeline(pipeline_id: uuid.UUID):
 
 @router.patch("/{pipeline_id}", response_model=dict)
 @handle_errors
-async def update_pipeline(pipeline_id: uuid.UUID, updates: dict = Body(...)):
+async def update_pipeline(
+    pipeline_id: uuid.UUID, 
+    updates: dict = Body(...),
+    current_user = Security(get_current_user, scopes=["admin"])
+):
     """
     Update config by creating a new version.
     """
@@ -183,7 +198,10 @@ async def update_pipeline(pipeline_id: uuid.UUID, updates: dict = Body(...)):
 
 @router.delete("/{pipeline_id}")
 @handle_errors
-async def delete_pipeline(pipeline_id: uuid.UUID):
+async def delete_pipeline(
+    pipeline_id: uuid.UUID,
+    current_user = Security(get_current_user, scopes=["admin"])
+):
     pool = get_pool()
     async with pool.acquire() as conn:
         result = await conn.execute(

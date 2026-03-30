@@ -2,43 +2,105 @@ import uuid
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from opentelemetry import trace
 from backend.db.pool import get_pool
 from backend.utils.logger import handle_errors
+from backend.monitoring.metrics import ingestion_docs_total
+from backend.security.auth import get_current_user
+from backend.security.validators import validate_url, validate_file
+from backend.security.secret_detector import scan_and_redact_secrets
+from backend.security.prompt_injection import check_injection_patterns
+from backend.security.sandbox import process_document_sandboxed
+from fastapi import Security, Body
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/documents", tags=["documents"])
+tracer = trace.get_tracer("neuroflow.ingestion")
+router = APIRouter(tags=["documents"])
 
-@router.post("")
+@router.post("/documents")
 @handle_errors
-async def upload_documents(files: List[UploadFile] = File(...)):
+async def upload_documents(
+    files: List[UploadFile] = File(...),
+    current_user = Security(get_current_user, scopes=["ingest"])
+):
     """
-    Simulate document upload and ingestion.
-    In a real system, this would trigger an async ingestion pipeline.
+    Simulate document upload and ingestion with instrumentation and security hardening.
     """
-    pool = get_pool()
-    uploaded_ids = []
-    
-    async with pool.acquire() as conn:
-        for file in files:
-            doc_id = uuid.uuid4()
-            # Mock hash and type for now
-            content_hash = f"hash_{doc_id.hex[:10]}"
-            source_type = file.filename.split('.')[-1] if '.' in file.filename else 'text'
-            if source_type not in ['pdf','docx','image','csv','url','text']:
-                source_type = 'text'
+    with tracer.start_as_current_span("ingestion.process") as span:
+        span.set_attribute("file_count", len(files))
+        pool = get_pool()
+        uploaded_ids = []
+        
+        async with pool.acquire() as conn:
+            for file in files:
+                # 1. File type and magic bytes validation
+                await validate_file(file)
                 
-            await conn.execute(
-                """
-                INSERT INTO documents (id, filename, source_type, content_hash, status, created_at)
-                VALUES ($1, $2, $3, $4, $5, NOW())
-                """,
-                doc_id, file.filename, source_type, content_hash, "processing"
-            )
-            uploaded_ids.append(str(doc_id))
+                doc_id = uuid.uuid4()
+                # Mock hash and type for now
+                content_hash = f"hash_{doc_id.hex[:10]}"
+                source_type = file.filename.split('.')[-1] if '.' in file.filename else 'text'
+                if source_type not in ['pdf','docx','image','csv','url','text']:
+                    source_type = 'text'
+                
+                # Nested spans for the pipeline steps
+                with tracer.start_as_current_span(f"ingestion.extract.{source_type}"):
+                    # Simulation: extract content
+                    content = await file.read()
+                    await file.seek(0)
+                    
+                    # Real Sandbox Extraction
+                    extracted_text = process_document_sandboxed(content, file.filename)
+                    span.set_attribute("extracted_text_length", len(extracted_text))
+                
+                with tracer.start_as_current_span(f"ingestion.security_check"):
+                    # 1. Prompt Injection Detection (L1)
+                    injection_result = check_injection_patterns(extracted_text)
+                    if injection_result["prompt_injection_detected"]:
+                        logger.warning(f"Prompt injection detected in document {file.filename}: {injection_result['pattern']}")
+                        # In real app, we'd add this to metadata
+                    
+                    # 2. Secret Redaction
+                    sanitized_content = scan_and_redact_secrets(extracted_text, str(doc_id))
+                
+                with tracer.start_as_current_span("ingestion.chunk"):
+                    await conn.execute(
+                        """
+                        INSERT INTO documents (id, filename, source_type, content_hash, status, created_at)
+                        VALUES ($1, $2, $3, $4, $5, NOW())
+                        """,
+                        doc_id, file.filename, source_type, content_hash, "processing"
+                    )
+                
+                # Simulation outputs for testing
+                doc_metadata = {"prompt_injection_detected": injection_result["prompt_injection_detected"]}
+                
+                # 2. Update metrics
+                ingestion_docs_total.labels(source_type=source_type).inc()
+                uploaded_ids.append({
+                    "id": str(doc_id),
+                    "sanitized_content": sanitized_content,
+                    "metadata": doc_metadata
+                })
             
-    return {"message": f"Uploaded {len(files)} files", "document_ids": uploaded_ids}
+        return {"message": f"Uploaded {len(files)} files", "documents": uploaded_ids}
 
-@router.get("")
+@router.post("/ingest")
+@handle_errors
+async def ingest_url(
+    url: str = Body(..., embed=True),
+    current_user = Security(get_current_user, scopes=["ingest"])
+):
+    """
+    Ingest document from URL with SSRF protection.
+    """
+    validate_url(url)
+    
+    # Simulate ingestion
+    doc_id = uuid.uuid4()
+    return {"message": "URL ingestion initiated", "document_id": str(doc_id), "url": url}
+
+@router.get("/documents")
 @handle_errors
 async def list_documents():
     pool = get_pool()
