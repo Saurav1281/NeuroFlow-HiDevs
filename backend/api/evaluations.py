@@ -1,13 +1,36 @@
 import json
 import asyncio
 import logging
-from fastapi import APIRouter, Depends
+import uuid
+from fastapi import APIRouter, Depends, HTTPException
 from sse_starlette.sse import EventSourceResponse
 from redis.asyncio import Redis
 from backend.config import settings
+from backend.db.pool import get_pool
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/evaluations", tags=["evaluations"])
+
+@router.get("/{run_id}")
+async def get_evaluation(run_id: uuid.UUID):
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT id, run_id, overall_score, faithfulness_score, relevance_score, metadata, created_at FROM evaluations WHERE run_id = $1",
+            run_id
+        )
+        if not row:
+            raise HTTPException(status_code=404, detail="Evaluation not found")
+            
+        return {
+            "id": str(row["id"]),
+            "run_id": str(row["run_id"]),
+            "overall_score": row["overall_score"],
+            "faithfulness_score": row["faithfulness_score"],
+            "relevance_score": row["relevance_score"],
+            "metadata": json.loads(row["metadata"] or "{}"),
+            "created_at": row["created_at"]
+        }
 
 def get_redis():
     return Redis(

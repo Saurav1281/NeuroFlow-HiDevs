@@ -16,6 +16,13 @@ class Settings(BaseSettings):
     JAEGER_HOST: str = "jaeger"
     JAEGER_PORT: int = 4317
     
+    # Security
+    CLIENT_ID: str = "neuroflow-client"
+    CLIENT_SECRET: str = "neuroflow-secret"
+    JWT_SECRET_KEY: str = "super-secret-key-for-testing"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
     # LLM Provider API keys
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None

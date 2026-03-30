@@ -1,5 +1,6 @@
 import uuid
 import logging
+import hashlib
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from opentelemetry import trace
@@ -36,9 +37,25 @@ async def upload_documents(
                 # 1. File type and magic bytes validation
                 await validate_file(file)
                 
+                content = await file.read()
+                await file.seek(0)
+                content_hash = hashlib.sha256(content).hexdigest()
+                
+                # Check for existing document with same hash
+                existing_doc = await conn.fetchrow(
+                    "SELECT id FROM documents WHERE content_hash = $1 LIMIT 1",
+                    content_hash
+                )
+                
+                if existing_doc:
+                    uploaded_ids.append({
+                        "id": str(existing_doc["id"]),
+                        "duplicate": True,
+                        "metadata": {"status": "existing"}
+                    })
+                    continue
+
                 doc_id = uuid.uuid4()
-                # Mock hash and type for now
-                content_hash = f"hash_{doc_id.hex[:10]}"
                 source_type = file.filename.split('.')[-1] if '.' in file.filename else 'text'
                 if source_type not in ['pdf','docx','image','csv','url','text']:
                     source_type = 'text'

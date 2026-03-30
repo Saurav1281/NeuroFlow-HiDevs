@@ -14,7 +14,7 @@ from backend.config import settings
 from backend.db.pool import init_pool, close_pool, get_pool
 from backend.db.health import check_postgres, check_redis, check_mlflow
 from backend.db.migrations import check_migrations
-from backend.api import query, runs, pipelines, compare, evaluations, documents, auth
+from backend.api import query, runs, pipelines, compare, evaluations, documents, auth, finetune
 from backend.security.auth import get_current_user
 from fastapi import Security, Depends
 import uuid
@@ -82,6 +82,7 @@ app.include_router(pipelines.router, prefix="/pipelines", dependencies=[Depends(
 app.include_router(compare.router, prefix="/compare", dependencies=[Depends(get_current_user)])
 app.include_router(evaluations.router, prefix="/evaluations", dependencies=[Depends(get_current_user)])
 app.include_router(documents.router, dependencies=[Depends(get_current_user)])
+app.include_router(finetune.router, dependencies=[Depends(get_current_user)])
 
 @app.get("/health")
 async def health_check():
