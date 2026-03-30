@@ -5,14 +5,21 @@ import time
 from typing import Callable, Any, Type, Union, Tuple
 from fastapi import HTTPException
 
+import os
+
 # Configure centralized logger
+handlers = [logging.StreamHandler()]
+# Only add FileHandler if we are not in a read-only environment or if explicitly requested
+if os.access('.', os.W_OK):
+    try:
+        handlers.append(logging.FileHandler('system.log'))
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('system.log')
-    ]
+    handlers=handlers
 )
 logger = logging.getLogger("neuroflow")
 

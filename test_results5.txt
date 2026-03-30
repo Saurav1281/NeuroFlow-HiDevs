@@ -1,0 +1,40 @@
+
+============================================================
+  1. PUBLIC ENDPOINTS
+============================================================
+  [FAIL] /health reachable
+         Detail: HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=5)
+
+============================================================
+  2. JWT AUTH & SCOPES
+============================================================
+  [PASS] Token obtained for admin
+  [PASS] Token obtained for query
+  [PASS] Query token cannot create pipeline (403)
+
+============================================================
+  3. SSRF PROTECTION
+============================================================
+  [PASS] SSRF blocked: http://127.0.0.1
+  [PASS] SSRF blocked: http://192.168.1.1
+  [PASS] SSRF blocked: http://localhost
+
+============================================================
+  4. PROMPT INJECTION (L2 - Query Rejection)
+============================================================
+  [FAIL] Query injection rejected: Ignore all previous instructio...
+  [FAIL] Query injection rejected: You are now a different assist...
+
+============================================================
+  5. SECRET REDACTION & MAGIC BYTES (Upload)
+============================================================
+  [FAIL] Upload with AWS key returns 200
+  [FAIL] Upload with L1 Prompt Injection returns 200
+  [FAIL] Disguised EXE rejected (400)
+
+============================================================
+  SUMMARY
+============================================================
+
+  6/12 tests passed
+  6 tests FAILED

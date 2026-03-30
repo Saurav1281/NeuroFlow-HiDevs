@@ -11,7 +11,7 @@ from backend.security.auth import get_current_user
 from backend.security.validators import validate_pipeline_name, sanitize_text
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["pipelines"])
+router = APIRouter(prefix="/pipelines", tags=["pipelines"])
 
 @router.post("", response_model=dict)
 @handle_errors

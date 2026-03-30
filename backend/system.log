@@ -1,0 +1,200 @@
+2026-03-30 15:14:18,954 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2026-03-30 15:14:28,845 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2026-03-30 15:14:38,190 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2026-03-30 15:15:07,998 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:15:43,108 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:15:43,110 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:16:06,784 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:16:06,785 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:16:13,804 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:16:21,809 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:16:30,122 - __main__ - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:16:30,123 - __main__ - INFO - Shutting down resources...
+2026-03-30 15:16:35,600 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /health
+2026-03-30 15:16:35,601 - backend.db.health - ERROR - Postgres health check failed: Database pool is not initialized
+2026-03-30 15:16:54,285 - backend.db.health - ERROR - Redis health check failed: Timeout connecting to server
+2026-03-30 15:16:56,510 - backend.db.health - ERROR - MLflow health check failed: 
+2026-03-30 15:17:06,950 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /health
+2026-03-30 15:17:06,951 - backend.db.health - ERROR - Postgres health check failed: Database pool is not initialized
+2026-03-30 15:17:14,026 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:17:16,150 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:17:18,185 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /pipelines
+2026-03-30 15:17:20,215 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:17:22,254 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:17:22,386 - backend.db.health - ERROR - Redis health check failed: Timeout connecting to server
+2026-03-30 15:17:24,278 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:17:24,585 - backend.db.health - ERROR - MLflow health check failed: 
+2026-03-30 15:17:26,300 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:17:26,302 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:17:26,302 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:17:26,302 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:17:28,337 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:17:28,338 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:17:28,339 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:17:28,339 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:17:30,363 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:17:30,367 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:17:32,398 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:17:32,401 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:17:34,447 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:17:34,449 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:17:34,581 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 1.12s.
+2026-03-30 15:17:40,122 - opentelemetry.exporter.otlp.proto.grpc.exporter - ERROR - Failed to export traces to jaeger:4317, error code: StatusCode.UNAVAILABLE
+2026-03-30 15:17:45,132 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 0.81s.
+2026-03-30 15:17:54,172 - opentelemetry.exporter.otlp.proto.grpc.exporter - ERROR - Failed to export traces to jaeger:4317, error code: StatusCode.UNAVAILABLE
+2026-03-30 15:18:31,710 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /health
+2026-03-30 15:18:31,710 - backend.db.health - ERROR - Postgres health check failed: Database pool is not initialized
+2026-03-30 15:18:48,974 - backend.db.health - ERROR - Redis health check failed: Timeout connecting to server
+2026-03-30 15:18:51,182 - backend.db.health - ERROR - MLflow health check failed: 
+2026-03-30 15:18:53,244 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:18:55,259 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:18:57,306 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /pipelines
+2026-03-30 15:18:59,367 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:19:01,428 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:19:03,499 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:19:05,532 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:19:05,533 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:19:05,533 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:19:05,533 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:19:07,563 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:19:07,564 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:19:07,565 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:19:07,565 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:19:09,631 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:19:09,634 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:19:11,681 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:19:11,682 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:19:13,709 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:19:13,711 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:19:14,289 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 0.89s.
+2026-03-30 15:19:23,027 - opentelemetry.exporter.otlp.proto.grpc.exporter - ERROR - Failed to export traces to jaeger:4317, error code: StatusCode.UNAVAILABLE
+2026-03-30 15:19:28,365 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:19:36,456 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:19:59,338 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:20:07,095 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:20:08,673 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:20:16,809 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...
+2026-03-30 15:20:44,157 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /health
+2026-03-30 15:20:44,158 - backend.db.health - ERROR - Postgres health check failed: Database pool is not initialized
+2026-03-30 15:20:59,171 - backend.db.health - ERROR - Redis health check failed: Timeout connecting to server
+2026-03-30 15:21:01,390 - backend.db.health - ERROR - MLflow health check failed: 
+2026-03-30 15:21:03,421 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:21:05,456 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /auth/token
+2026-03-30 15:21:07,515 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /pipelines
+2026-03-30 15:21:09,574 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:21:11,634 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:21:13,686 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /ingest
+2026-03-30 15:21:15,727 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:21:15,730 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:21:15,730 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:21:15,730 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:21:17,780 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /query
+2026-03-30 15:21:17,781 - backend.providers.client - WARNING - OPENAI_API_KEY not set, OpenAI providers unavailable
+2026-03-30 15:21:17,782 - backend.providers.client - WARNING - ANTHROPIC_API_KEY not set, Anthropic providers unavailable
+2026-03-30 15:21:17,782 - backend.providers.client - WARNING - Redis not available, router will use defaults
+2026-03-30 15:21:19,831 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:21:19,836 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:21:21,906 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:21:21,908 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:21:23,976 - backend.main - INFO - SECURITY_DEBUG: Middleware reached for /documents
+2026-03-30 15:21:23,978 - neuroflow - ERROR - Unexpected error in upload_documents: Database pool is not initialized
+Traceback (most recent call last):
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\utils\logger.py", line 53, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\api\documents.py", line 31, in upload_documents
+    pool = get_pool()
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\neuroflow\backend\db\pool.py", line 42, in get_pool
+    raise Exception("Database pool is not initialized")
+Exception: Database pool is not initialized
+2026-03-30 15:21:24,609 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 0.88s.
+2026-03-30 15:21:30,217 - opentelemetry.exporter.otlp.proto.grpc.exporter - ERROR - Failed to export traces to jaeger:4317, error code: StatusCode.UNAVAILABLE
+2026-03-30 15:21:35,226 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 0.82s.
+2026-03-30 15:21:40,522 - opentelemetry.exporter.otlp.proto.grpc.exporter - WARNING - Transient error StatusCode.UNAVAILABLE encountered while exporting traces to jaeger:4317, retrying in 4.47s.
+2026-03-30 15:21:44,995 - opentelemetry.exporter.otlp.proto.grpc.exporter - ERROR - Failed to export traces to jaeger:4317, error code: StatusCode.UNAVAILABLE
+2026-03-30 15:23:27,106 - backend.main - INFO - Shutting down resources...
+2026-03-30 15:23:36,776 - backend.main - INFO - Starting up resources (BYPASSED for security testing)...

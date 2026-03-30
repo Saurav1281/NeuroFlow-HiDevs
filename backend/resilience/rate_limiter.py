@@ -19,6 +19,8 @@ class RateLimiter:
         window_seconds: int
     ) -> bool:
         """Sliding window rate limit check."""
+        if self.redis is None:
+            return True
         now = time.time()
         pipeline = self.redis.pipeline()
         
@@ -43,6 +45,8 @@ class RateLimiter:
         refill_rate: float
     ) -> bool:
         """Token bucket rate limit check."""
+        if self.redis is None:
+            return True
         now = time.time()
         tokens = await self.redis.get(f"{key}:tokens")
         last_refill = await self.redis.get(f"{key}:last_refill")

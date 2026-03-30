@@ -17,7 +17,7 @@ from redis.asyncio import Redis
 from backend.utils.logger import handle_errors, retry_on_failure
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/pipelines", tags=["pipelines"])
+router = APIRouter(prefix="/compare", tags=["compare"])
 
 def get_redis():
     from backend.config import settings

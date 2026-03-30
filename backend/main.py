@@ -44,14 +44,28 @@ trace.set_tracer_provider(provider)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info("Starting up resources (BYPASSED for security testing)...")
-    # Define state to avoid AttributeError in health/metrics
-    app.state.cb = CircuitBreaker(None, "llm_api")
-    app.state.limiter = RateLimiter(None)
+    logger.info("Initializing resources...")
+    try:
+        await init_pool()
+        # Initialize Redis client
+        app.state.redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)
+        # Initialize resilience components with real Redis
+        app.state.cb = CircuitBreaker(app.state.redis, "llm_api")
+        app.state.limiter = RateLimiter(app.state.redis)
+        logger.info("Resources initialized successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize resources: {e}")
+        # Fallback to no-op versions to allow startup but degraded mode
+        app.state.cb = CircuitBreaker(None, "llm_api")
+        app.state.limiter = RateLimiter(None)
+    
     app.state.backpressure = BackpressureManager(max_buffer_size=100)
     yield
     # Shutdown
     logger.info("Shutting down resources...")
+    await close_pool()
+    if hasattr(app.state, "redis") and app.state.redis:
+        await app.state.redis.close()
 
 app = FastAPI(lifespan=lifespan, title="NeuroFlow API")
 
@@ -75,12 +89,12 @@ app.add_middleware(SecurityHeadersMiddleware)
 # FastAPIInstrumentor.instrument_app(app) # Disabled for security debugging
 
 # Register routes
-app.include_router(auth.router, prefix="/auth")
-app.include_router(query.router, prefix="/query", dependencies=[Depends(get_current_user)])
-app.include_router(runs.router, prefix="/runs", dependencies=[Depends(get_current_user)])
-app.include_router(pipelines.router, prefix="/pipelines", dependencies=[Depends(get_current_user)])
-app.include_router(compare.router, prefix="/compare", dependencies=[Depends(get_current_user)])
-app.include_router(evaluations.router, prefix="/evaluations", dependencies=[Depends(get_current_user)])
+app.include_router(auth.router)
+app.include_router(query.router, dependencies=[Depends(get_current_user)])
+app.include_router(runs.router, dependencies=[Depends(get_current_user)])
+app.include_router(pipelines.router, dependencies=[Depends(get_current_user)])
+app.include_router(compare.router, dependencies=[Depends(get_current_user)])
+app.include_router(evaluations.router, dependencies=[Depends(get_current_user)])
 app.include_router(documents.router, dependencies=[Depends(get_current_user)])
 app.include_router(finetune.router, dependencies=[Depends(get_current_user)])
 

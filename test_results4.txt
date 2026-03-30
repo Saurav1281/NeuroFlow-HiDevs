@@ -1,0 +1,33 @@
+
+============================================================
+  1. PUBLIC ENDPOINTS
+============================================================
+  [FAIL] /health reachable
+         Detail: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection
+
+============================================================
+  2. JWT AUTH & SCOPES
+============================================================
+  [FAIL] Auth call for admin
+         Detail: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /auth/token (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connec
+  [FAIL] Auth call for query
+         Detail: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /auth/token (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connec
+
+============================================================
+  3. SSRF PROTECTION
+============================================================
+
+============================================================
+  4. PROMPT INJECTION (L2 - Query Rejection)
+============================================================
+
+============================================================
+  5. SECRET REDACTION & MAGIC BYTES (Upload)
+============================================================
+
+============================================================
+  SUMMARY
+============================================================
+
+  0/3 tests passed
+  3 tests FAILED

@@ -34,24 +34,34 @@ class CircuitBreaker:
         self._last_fail_time_key = f"{self.name}:last_fail"
 
     async def _get_state(self) -> State:
+        if self.redis is None:
+            return State.CLOSED
         state = await self.redis.get(self._state_key)
         if not state:
             return State.CLOSED
-        return State(state.decode())
+        return State(state.decode() if isinstance(state, bytes) else state)
 
     async def _set_state(self, state: State):
+        if self.redis is None:
+            return
         old_state = await self._get_state()
         await self.redis.set(self._state_key, state.value)
         logger.info(f"Circuit Breaker '{self.name}' state changed to {state.value}")
         
         # Update metrics
-        if state == State.OPEN and old_state != State.OPEN:
-            circuit_breaker_trips.labels(provider=self.provider).inc()
-            active_circuit_breakers_open.inc()
-        elif old_state == State.OPEN and state != State.OPEN:
-            active_circuit_breakers_open.dec()
+        try:
+            if state == State.OPEN and old_state != State.OPEN:
+                circuit_breaker_trips.labels(provider=self.provider).inc()
+                active_circuit_breakers_open.inc()
+            elif old_state == State.OPEN and state != State.OPEN:
+                active_circuit_breakers_open.dec()
+        except Exception as e:
+            logger.warning(f"Failed to update metrics: {e}")
 
     async def call(self, func: Callable, *args, **kwargs) -> Any:
+        if self.redis is None:
+            return await func(*args, **kwargs)
+
         state = await self._get_state()
         
         if state == State.OPEN:
@@ -72,6 +82,8 @@ class CircuitBreaker:
             raise e
 
     async def _handle_failure(self):
+        if self.redis is None:
+            return
         count = await self.redis.incr(self._fail_count_key)
         await self.redis.set(self._last_fail_time_key, time.time())
         
@@ -79,5 +91,7 @@ class CircuitBreaker:
             await self._set_state(State.OPEN)
 
     async def _reset(self):
+        if self.redis is None:
+            return
         await self.redis.delete(self._fail_count_key)
         await self._set_state(State.CLOSED)

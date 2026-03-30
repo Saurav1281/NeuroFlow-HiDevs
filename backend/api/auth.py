@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from backend.config import settings
 
 # Prefix is removed here so it can be controlled in main.py or set to /auth
-router = APIRouter(tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 

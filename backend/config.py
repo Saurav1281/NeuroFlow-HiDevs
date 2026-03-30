@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     
+    @property
+    def REDIS_URL(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
+    
     MLFLOW_TRACKING_URI: str = "http://mlflow:5000"
     JAEGER_HOST: str = "jaeger"
     JAEGER_PORT: int = 4317

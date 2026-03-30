@@ -16,9 +16,9 @@ from fastapi import Security, Body
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer("neuroflow.ingestion")
-router = APIRouter(tags=["documents"])
+router = APIRouter(prefix="/documents", tags=["documents"])
 
-@router.post("/documents")
+@router.post("")
 @handle_errors
 async def upload_documents(
     files: List[UploadFile] = File(...),
@@ -117,7 +117,7 @@ async def ingest_url(
     doc_id = uuid.uuid4()
     return {"message": "URL ingestion initiated", "document_id": str(doc_id), "url": url}
 
-@router.get("/documents")
+@router.get("")
 @handle_errors
 async def list_documents():
     pool = get_pool()

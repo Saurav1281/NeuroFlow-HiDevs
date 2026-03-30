@@ -23,7 +23,7 @@ from backend.security.validators import validate_query
 from fastapi import Security
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["query"])
+router = APIRouter(prefix="/query", tags=["query"])
 
 # In-memory store for pending queries (could use Redis for production)
 pending_queries = {}
