@@ -2,9 +2,10 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master, task-46 ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   trivy:
