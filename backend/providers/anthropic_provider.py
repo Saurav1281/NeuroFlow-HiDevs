@@ -14,7 +14,8 @@ Features:
 import asyncio
 import logging
 import time
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
+from typing import Any
 
 from anthropic import AsyncAnthropic, RateLimitError
 
@@ -50,7 +51,7 @@ class AnthropicProvider(BaseLLMProvider):
         api_key: str,
         model: str = "claude-3-5-haiku-20241022",
         max_tokens: int = 1024,
-    ):
+    ) -> None:
         self._model = model
         self._max_tokens = max_tokens
         self._client = AsyncAnthropic(api_key=api_key)
@@ -88,7 +89,7 @@ class AnthropicProvider(BaseLLMProvider):
 
     def _prepare_messages(
         self, messages: list[ChatMessage]
-    ) -> tuple[str | None, list[dict]]:
+    ) -> tuple[str | None, list[dict[str, Any]]]:
         """Separate system messages from conversation messages.
 
         Anthropic API requires system messages to be passed as a top-level
@@ -121,7 +122,9 @@ class AnthropicProvider(BaseLLMProvider):
         system_prompt = "\n\n".join(system_parts) if system_parts else None
         return system_prompt, api_messages
 
-    async def _retry_with_backoff(self, coro_factory, description: str = "API call"):
+    async def _retry_with_backoff(
+        self, coro_factory: Callable[[], Any], description: str = "API call"
+    ) -> Any:  # noqa: ANN401
         """Execute an async callable with exponential backoff on RateLimitError.
 
         Args:
@@ -143,7 +146,7 @@ class AnthropicProvider(BaseLLMProvider):
                 if attempt < MAX_RETRIES:
                     retry_after = getattr(e, "retry_after", None)
                     if retry_after is None:
-                        retry_after = BASE_RETRY_DELAY * (2 ** attempt)
+                        retry_after = BASE_RETRY_DELAY * (2**attempt)
                     logger.warning(
                         f"Rate limited on {description} (attempt {attempt + 1}/{MAX_RETRIES + 1}), "
                         f"retrying in {retry_after:.1f}s"
@@ -156,9 +159,7 @@ class AnthropicProvider(BaseLLMProvider):
                     )
                     raise last_error
 
-    async def complete(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> GenerationResult:
+    async def complete(self, messages: list[ChatMessage], **kwargs: Any) -> GenerationResult:  # noqa: ANN401
         """Generate a complete response using Anthropic Messages API.
 
         Args:
@@ -194,9 +195,7 @@ class AnthropicProvider(BaseLLMProvider):
             if hasattr(block, "text"):
                 content_text += block.text
 
-        cost_usd = self.estimate_cost(
-            response.usage.input_tokens, response.usage.output_tokens
-        )
+        cost_usd = self.estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
 
         return GenerationResult(
             content=content_text,
@@ -208,9 +207,7 @@ class AnthropicProvider(BaseLLMProvider):
             finish_reason=response.stop_reason or "unknown",
         )
 
-    async def stream(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def stream(self, messages: list[ChatMessage], **kwargs: Any) -> AsyncGenerator[str, None]:  # noqa: ANN401
         """Stream tokens progressively from Anthropic Messages API.
 
         Uses the Anthropic streaming interface to yield text deltas

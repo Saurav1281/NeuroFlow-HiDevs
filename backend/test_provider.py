@@ -21,11 +21,11 @@ Usage:
 
 import asyncio
 import json
+import logging
 import sys
 import time
-import logging
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
-from dataclasses import dataclass
+from typing import Never
+from unittest.mock import AsyncMock, MagicMock
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -37,7 +37,7 @@ failed = 0
 total = 0
 
 
-def test_result(name: str, success: bool, detail: str = ""):
+def test_result(name: str, success: bool, detail: str = "") -> None:
     """Record and print a test result."""
     global passed, failed, total
     total += 1
@@ -52,12 +52,12 @@ def test_result(name: str, success: bool, detail: str = ""):
 # ─────────────────────────────────────────────────────────
 # TEST 1: Interface compliance
 # ─────────────────────────────────────────────────────────
-def test_interface_compliance():
+def test_interface_compliance() -> None:
     """Both providers implement the full BaseLLMProvider interface."""
     print("\n[Test 1] Interface Compliance")
+    from providers.anthropic_provider import AnthropicProvider
     from providers.base import BaseLLMProvider
     from providers.openai_provider import OpenAIProvider
-    from providers.anthropic_provider import AnthropicProvider
 
     # OpenAI provider
     provider = OpenAIProvider(api_key="test-key", model="gpt-4o-mini")
@@ -73,7 +73,12 @@ def test_interface_compliance():
             hasattr(provider, method_name) and callable(getattr(provider, method_name)),
         )
 
-    for prop_name in ["cost_per_input_token", "cost_per_output_token", "context_window", "model_name"]:
+    for prop_name in [
+        "cost_per_input_token",
+        "cost_per_output_token",
+        "context_window",
+        "model_name",
+    ]:
         test_result(
             f"OpenAIProvider has {prop_name} property",
             hasattr(provider, prop_name),
@@ -92,7 +97,12 @@ def test_interface_compliance():
             hasattr(provider2, method_name) and callable(getattr(provider2, method_name)),
         )
 
-    for prop_name in ["cost_per_input_token", "cost_per_output_token", "context_window", "model_name"]:
+    for prop_name in [
+        "cost_per_input_token",
+        "cost_per_output_token",
+        "context_window",
+        "model_name",
+    ]:
         test_result(
             f"AnthropicProvider has {prop_name} property",
             hasattr(provider2, prop_name),
@@ -102,11 +112,11 @@ def test_interface_compliance():
 # ─────────────────────────────────────────────────────────
 # TEST 2: Cost properties are correct
 # ─────────────────────────────────────────────────────────
-def test_cost_properties():
+def test_cost_properties() -> None:
     """Cost properties match expected price table values."""
     print("\n[Test 2] Cost Properties")
-    from providers.openai_provider import OpenAIProvider
     from providers.anthropic_provider import AnthropicProvider
+    from providers.openai_provider import OpenAIProvider
 
     # gpt-4o-mini: input=0.15/M, output=0.60/M
     oai = OpenAIProvider(api_key="test", model="gpt-4o-mini")
@@ -152,7 +162,7 @@ def test_cost_properties():
 # ─────────────────────────────────────────────────────────
 # TEST 3: Cost estimation
 # ─────────────────────────────────────────────────────────
-def test_cost_estimation():
+def test_cost_estimation() -> None:
     """estimate_cost() calculates correctly."""
     print("\n[Test 3] Cost Estimation")
     from providers.openai_provider import OpenAIProvider
@@ -171,11 +181,11 @@ def test_cost_estimation():
 # ─────────────────────────────────────────────────────────
 # TEST 4: Rate limit retry logic
 # ─────────────────────────────────────────────────────────
-def test_rate_limit_retry():
+def test_rate_limit_retry() -> None:
     """Rate limit retry with exponential backoff works correctly."""
     print("\n[Test 4] Rate Limit Retry Logic")
 
-    async def _test():
+    async def _test() -> None:
         from providers.openai_provider import OpenAIProvider, RateLimitError
 
         provider = OpenAIProvider(api_key="test-key", model="gpt-4o-mini")
@@ -216,6 +226,7 @@ def test_rate_limit_retry():
         provider._client.chat.completions.create = mock_create
 
         from providers.base import ChatMessage
+
         messages = [ChatMessage(role="user", content="Hello")]
 
         start = time.perf_counter()
@@ -241,7 +252,7 @@ def test_rate_limit_retry():
         # Test exhausted retries
         call_count_2 = 0
 
-        async def mock_always_fail(**kwargs):
+        async def mock_always_fail(**kwargs) -> Never:
             nonlocal call_count_2
             call_count_2 += 1
             raise rate_limit_error
@@ -265,7 +276,7 @@ def test_rate_limit_retry():
 # ─────────────────────────────────────────────────────────
 # TEST 5: Anthropic system message handling
 # ─────────────────────────────────────────────────────────
-def test_anthropic_system_messages():
+def test_anthropic_system_messages() -> None:
     """System messages are extracted as top-level param, not in messages list."""
     print("\n[Test 5] Anthropic System Message Handling")
     from providers.anthropic_provider import AnthropicProvider
@@ -302,12 +313,12 @@ def test_anthropic_system_messages():
 # ─────────────────────────────────────────────────────────
 # TEST 6: Anthropic embed raises NotImplementedError
 # ─────────────────────────────────────────────────────────
-def test_anthropic_embed_not_implemented():
+def test_anthropic_embed_not_implemented() -> None:
     """Anthropic embed() raises NotImplementedError."""
     print("\n[Test 6] Anthropic Embed NotImplementedError")
     from providers.anthropic_provider import AnthropicProvider
 
-    async def _test():
+    async def _test() -> None:
         provider = AnthropicProvider(api_key="test-key")
         try:
             await provider.embed(["hello"])
@@ -321,12 +332,12 @@ def test_anthropic_embed_not_implemented():
 # ─────────────────────────────────────────────────────────
 # TEST 7: ModelRouter routing rules
 # ─────────────────────────────────────────────────────────
-def test_model_router():
+def test_model_router() -> None:
     """ModelRouter applies all routing rules correctly."""
     print("\n[Test 7] ModelRouter Routing Rules")
 
-    async def _test():
-        from providers.router import ModelRouter, RoutingCriteria, ModelConfig
+    async def _test() -> None:
+        from providers.router import ModelRouter, RoutingCriteria
 
         # Create a mock Redis
         mock_redis = AsyncMock()
@@ -452,13 +463,8 @@ def test_model_router():
         # TEST 7f: Cost filtering
         router._loaded = False
         mock_redis.get = AsyncMock(return_value=json.dumps(model_configs))
-        config = await router.route(
-            RoutingCriteria(max_cost_per_call=0.001)
-        )
-        estimated_cost = (
-            config.cost_per_input_token * 1000
-            + config.cost_per_output_token * 500
-        )
+        config = await router.route(RoutingCriteria(max_cost_per_call=0.001))
+        estimated_cost = config.cost_per_input_token * 1000 + config.cost_per_output_token * 500
         test_result(
             "Cost filter respects max_cost_per_call",
             estimated_cost <= 0.001,
@@ -468,9 +474,7 @@ def test_model_router():
         # TEST 7g: Latency budget filtering
         router._loaded = False
         mock_redis.get = AsyncMock(return_value=json.dumps(model_configs))
-        config = await router.route(
-            RoutingCriteria(latency_budget_ms=1000)
-        )
+        config = await router.route(RoutingCriteria(latency_budget_ms=1000))
         test_result(
             "Latency budget routes to fast model",
             config.avg_latency_ms <= 1000,
@@ -483,19 +487,17 @@ def test_model_router():
 # ─────────────────────────────────────────────────────────
 # TEST 8: FallbackChain
 # ─────────────────────────────────────────────────────────
-def test_fallback_chain():
+def test_fallback_chain() -> None:
     """FallbackChain tries providers in order when one fails."""
     print("\n[Test 8] FallbackChain")
 
-    async def _test():
-        from providers.router import FallbackChain
+    async def _test() -> None:
         from providers.base import BaseLLMProvider, ChatMessage, GenerationResult
+        from providers.router import FallbackChain
 
         # Create mock providers
         failing_provider = AsyncMock(spec=BaseLLMProvider)
-        failing_provider.complete = AsyncMock(
-            side_effect=Exception("Provider 1 is down")
-        )
+        failing_provider.complete = AsyncMock(side_effect=Exception("Provider 1 is down"))
 
         success_result = GenerationResult(
             content="Hello from fallback",
@@ -509,10 +511,12 @@ def test_fallback_chain():
         success_provider = AsyncMock(spec=BaseLLMProvider)
         success_provider.complete = AsyncMock(return_value=success_result)
 
-        chain = FallbackChain([
-            ("primary", failing_provider),
-            ("fallback", success_provider),
-        ])
+        chain = FallbackChain(
+            [
+                ("primary", failing_provider),
+                ("fallback", success_provider),
+            ]
+        )
 
         messages = [ChatMessage(role="user", content="Hello")]
         result = await chain.complete(messages)
@@ -533,14 +537,14 @@ def test_fallback_chain():
 
         # Test all providers fail
         failing2 = AsyncMock(spec=BaseLLMProvider)
-        failing2.complete = AsyncMock(
-            side_effect=Exception("Provider 2 also down")
-        )
+        failing2.complete = AsyncMock(side_effect=Exception("Provider 2 also down"))
 
-        chain2 = FallbackChain([
-            ("p1", failing_provider),
-            ("p2", failing2),
-        ])
+        chain2 = FallbackChain(
+            [
+                ("p1", failing_provider),
+                ("p2", failing2),
+            ]
+        )
 
         try:
             await chain2.complete(messages)
@@ -558,7 +562,7 @@ def test_fallback_chain():
 # ─────────────────────────────────────────────────────────
 # TEST 9: NeuroFlowClient singleton
 # ─────────────────────────────────────────────────────────
-def test_client_singleton():
+def test_client_singleton() -> None:
     """NeuroFlowClient is a singleton."""
     print("\n[Test 9] NeuroFlowClient Singleton")
     from providers.client import NeuroFlowClient
@@ -580,11 +584,11 @@ def test_client_singleton():
 # ─────────────────────────────────────────────────────────
 # TEST 10: Redis metrics tracking
 # ─────────────────────────────────────────────────────────
-def test_redis_metrics():
+def test_redis_metrics() -> None:
     """Client tracks call counts and costs in Redis."""
     print("\n[Test 10] Redis Metrics Tracking")
 
-    async def _test():
+    async def _test() -> None:
         from providers.client import NeuroFlowClient
 
         NeuroFlowClient.reset()
@@ -626,11 +630,11 @@ def test_redis_metrics():
 # ─────────────────────────────────────────────────────────
 # TEST 11: ModelRouter uses Redis key
 # ─────────────────────────────────────────────────────────
-def test_router_redis_key():
+def test_router_redis_key() -> None:
     """ModelRouter reads from correct Redis key."""
     print("\n[Test 11] ModelRouter Redis Key")
 
-    async def _test():
+    async def _test() -> None:
         from providers.router import ModelRouter
 
         mock_redis = AsyncMock()
@@ -659,11 +663,11 @@ def test_router_redis_key():
 # ─────────────────────────────────────────────────────────
 # TEST 12: OpenAI message formatting
 # ─────────────────────────────────────────────────────────
-def test_openai_message_formatting():
+def test_openai_message_formatting() -> None:
     """OpenAI provider formats messages correctly."""
     print("\n[Test 12] OpenAI Message Formatting")
-    from providers.openai_provider import OpenAIProvider
     from providers.base import ChatMessage
+    from providers.openai_provider import OpenAIProvider
 
     provider = OpenAIProvider(api_key="test", model="gpt-4o-mini")
 
@@ -694,13 +698,13 @@ def test_openai_message_formatting():
 # ─────────────────────────────────────────────────────────
 # TEST 13: Streaming yields tokens (mock)
 # ─────────────────────────────────────────────────────────
-def test_streaming_mock():
+def test_streaming_mock() -> None:
     """stream() yields tokens progressively."""
     print("\n[Test 13] Streaming Yields Tokens (Mock)")
 
-    async def _test():
-        from providers.openai_provider import OpenAIProvider
+    async def _test() -> None:
         from providers.base import ChatMessage
+        from providers.openai_provider import OpenAIProvider
 
         provider = OpenAIProvider(api_key="test", model="gpt-4o-mini")
 
@@ -753,11 +757,11 @@ def test_streaming_mock():
 # ─────────────────────────────────────────────────────────
 # TEST 14: Embedding batching (mock)
 # ─────────────────────────────────────────────────────────
-def test_embedding_batching():
+def test_embedding_batching() -> None:
     """embed() batches texts in groups of 100."""
     print("\n[Test 14] Embedding Batching (Mock)")
 
-    async def _test():
+    async def _test() -> None:
         from providers.openai_provider import OpenAIProvider
 
         provider = OpenAIProvider(api_key="test", model="gpt-4o-mini")
@@ -804,7 +808,7 @@ def test_embedding_batching():
 # ─────────────────────────────────────────────────────────
 # TEST 15: FallbackChain requires at least one provider
 # ─────────────────────────────────────────────────────────
-def test_fallback_chain_validation():
+def test_fallback_chain_validation() -> None:
     """FallbackChain raises ValueError with empty provider list."""
     print("\n[Test 15] FallbackChain Validation")
     from providers.router import FallbackChain
@@ -819,7 +823,7 @@ def test_fallback_chain_validation():
 # ─────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────
-def main():
+def main() -> None:
     print("=" * 60)
     print("NeuroFlow LLM Provider Abstraction Layer — Test Suite")
     print("=" * 60)

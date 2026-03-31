@@ -1,0 +1,12 @@
+types-PyMySQL
+types-PyYAML
+types-bleach
+types-cachetools
+types-decorator
+types-paramiko
+types-protobuf
+types-pyOpenSSL
+types-pycurl
+types-requests
+types-tabulate
+types-ujson

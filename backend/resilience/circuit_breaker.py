@@ -1,32 +1,31 @@
-import asyncio
 import logging
 import time
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable, Any, Optional
+from typing import Any
+
 from redis.asyncio import Redis
 
-from backend.monitoring.metrics import circuit_breaker_trips, active_circuit_breakers_open
+from backend.monitoring.metrics import active_circuit_breakers_open, circuit_breaker_trips
 
 logger = logging.getLogger(__name__)
+
 
 class State(Enum):
     CLOSED = "closed"
     OPEN = "open"
     HALF_OPEN = "half_open"
 
+
 class CircuitBreaker:
     """Redis-backed async circuit breaker for distributed resilience."""
-    
+
     def __init__(
-        self, 
-        redis: Redis, 
-        name: str, 
-        threshold: int = 5, 
-        recovery_timeout: int = 30
-    ):
+        self, redis: Redis, name: str, threshold: int = 5, recovery_timeout: int = 30
+    ) -> None:
         self.redis = redis
         self.name = f"cb:{name}"
-        self.provider = name # Store provider name for metrics
+        self.provider = name  # Store provider name for metrics
         self.threshold = threshold
         self.recovery_timeout = recovery_timeout
         self._state_key = f"{self.name}:state"
@@ -41,13 +40,13 @@ class CircuitBreaker:
             return State.CLOSED
         return State(state.decode() if isinstance(state, bytes) else state)
 
-    async def _set_state(self, state: State):
+    async def _set_state(self, state: State) -> None:
         if self.redis is None:
             return
         old_state = await self._get_state()
         await self.redis.set(self._state_key, state.value)
         logger.info(f"Circuit Breaker '{self.name}' state changed to {state.value}")
-        
+
         # Update metrics
         try:
             if state == State.OPEN and old_state != State.OPEN:
@@ -58,12 +57,12 @@ class CircuitBreaker:
         except Exception as e:
             logger.warning(f"Failed to update metrics: {e}")
 
-    async def call(self, func: Callable, *args, **kwargs) -> Any:
+    async def call(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
         if self.redis is None:
             return await func(*args, **kwargs)
 
         state = await self._get_state()
-        
+
         if state == State.OPEN:
             last_fail = await self.redis.get(self._last_fail_time_key)
             if last_fail and time.time() - float(last_fail) > self.recovery_timeout:
@@ -81,16 +80,16 @@ class CircuitBreaker:
             await self._handle_failure()
             raise e
 
-    async def _handle_failure(self):
+    async def _handle_failure(self) -> None:
         if self.redis is None:
             return
         count = await self.redis.incr(self._fail_count_key)
         await self.redis.set(self._last_fail_time_key, time.time())
-        
+
         if count >= self.threshold:
             await self._set_state(State.OPEN)
 
-    async def _reset(self):
+    async def _reset(self) -> None:
         if self.redis is None:
             return
         await self.redis.delete(self._fail_count_key)
