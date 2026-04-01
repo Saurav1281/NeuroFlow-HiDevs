@@ -22,10 +22,8 @@ async def check_postgres() -> bool:
 
 async def check_redis() -> bool:
     try:
-        redis = Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            password=settings.REDIS_PASSWORD,
+        redis = Redis.from_url(
+            settings.get_redis_url(),
             socket_connect_timeout=2.0,
         )
         await redis.ping()

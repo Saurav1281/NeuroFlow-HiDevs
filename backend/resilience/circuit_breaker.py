@@ -35,10 +35,14 @@ class CircuitBreaker:
     async def _get_state(self) -> State:
         if self.redis is None:
             return State.CLOSED
-        state = await self.redis.get(self._state_key)
-        if not state:
+        try:
+            state = await self.redis.get(self._state_key)
+            if not state:
+                return State.CLOSED
+            return State(state.decode() if isinstance(state, bytes) else state)
+        except Exception as e:
+            logger.warning(f"Failed to get circuit breaker state: {e}")
             return State.CLOSED
-        return State(state.decode() if isinstance(state, bytes) else state)
 
     async def _set_state(self, state: State) -> None:
         if self.redis is None:

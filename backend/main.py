@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         await init_pool()
         # Initialize Redis client
-        app.state.redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)
+        app.state.redis = Redis.from_url(settings.get_redis_url(), decode_responses=True)
         # Initialize resilience components with real Redis
         app.state.cb = CircuitBreaker(app.state.redis, "llm_api")
         app.state.limiter = RateLimiter(app.state.redis)
