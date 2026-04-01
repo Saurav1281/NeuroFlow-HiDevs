@@ -1,0 +1,51 @@
+﻿backend\api\finetune.py:52:13: ANN202 Missing return type annotation for private function `write_data`
+backend\api\pipelines.py:111:101: E501 Line too long (111 > 100)
+backend\api\pipelines.py:113:101: E501 Line too long (108 > 100)
+backend\api\pipelines.py:115:101: E501 Line too long (108 > 100)
+backend\api\pipelines.py:117:101: E501 Line too long (104 > 100)
+backend\api\query.py:57:19: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `current_user`
+backend\api\query.py:116:15: ANN202 Missing return type annotation for private function `event_generator`
+backend\config.py:16:9: N802 Function name `REDIS_URL` should be lowercase
+backend\providers\client.py:56:29: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+backend\providers\client.py:56:44: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\providers\client.py:166:19: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\providers\client.py:233:19: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\resilience\backpressure.py:37:58: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+backend\resilience\backpressure.py:37:73: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\resilience\timeout_manager.py:14:58: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+backend\resilience\timeout_manager.py:14:73: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\services\pipeline_optimizer.py:28:101: E501 Line too long (101 > 100)
+backend\services\pipeline_optimizer.py:37:101: E501 Line too long (101 > 100)
+backend\services\pipeline_optimizer.py:51:101: E501 Line too long (104 > 100)
+backend\test_provider.py:219:19: ANN202 Missing return type annotation for private function `mock_create`
+backend\test_provider.py:219:33: ANN003 Missing type annotation for `**kwargs`
+backend\test_provider.py:255:38: ANN003 Missing type annotation for `**kwargs`
+backend\test_provider.py:726:19: ANN202 Missing return type annotation for private function `mock_stream`
+backend\test_provider.py:731:19: ANN202 Missing return type annotation for private function `mock_create`
+backend\test_provider.py:731:33: ANN003 Missing type annotation for `**kwargs`
+backend\test_provider.py:770:19: ANN202 Missing return type annotation for private function `mock_embed_create`
+backend\test_provider.py:770:39: ANN003 Missing type annotation for `**kwargs`
+backend\tests\benchmarks\retrieval_benchmark.py:27:9: ANN201 Missing return type annotation for public function `calculate_metrics`
+backend\tests\benchmarks\retrieval_benchmark.py:27:75: ANN001 Missing type annotation for function argument `k_list`
+backend\tests\benchmarks\retrieval_benchmark.py:51:15: ANN201 Missing return type annotation for public function `run`
+backend\tests\benchmarks\retrieval_benchmark.py:114:101: E501 Line too long (143 > 100)
+backend\tests\integration\test_pipeline.py:16:23: F821 Undefined name `AsyncGenerator`
+backend\tests\integration\test_pipeline.py:42:9: ANN202 Missing return type annotation for private function `read_file`
+backend\tests\integration\test_pipeline.py:149:9: ANN202 Missing return type annotation for private function `read_file`
+backend\tests\performance\locustfile.py:85:31: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `environment`
+backend\tests\performance\locustfile.py:85:46: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\tests\test_security_lite.py:18:101: E501 Line too long (107 > 100)
+backend\tests\verify_pipelines.py:59:19: ANN204 Missing return type annotation for special method `__aenter__`
+backend\tests\verify_pipelines.py:62:19: ANN204 Missing return type annotation for special method `__aexit__`
+backend\tests\verify_pipelines.py:62:36: ANN002 Missing type annotation for `*args`
+backend\tests\verify_pipelines.py:91:19: ANN202 Missing return type annotation for private function `mock_stream`
+backend\tests\verify_pipelines.py:91:32: ANN002 Missing type annotation for `*args`
+backend\tests\verify_pipelines.py:91:40: ANN003 Missing type annotation for `**kwargs`
+backend\utils\logger.py:39:34: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+backend\utils\logger.py:39:49: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\utils\logger.py:39:57: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `wrapper`
+backend\utils\logger.py:69:30: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+backend\utils\logger.py:69:45: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+backend\utils\logger.py:69:53: ANN401 Dynamically typed expressions (typing.Any) are disallowed in `wrapper`
+Found 49 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

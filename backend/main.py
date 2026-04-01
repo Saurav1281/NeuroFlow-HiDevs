@@ -27,16 +27,20 @@ from backend.security.auth import get_current_user
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Setup opentelemetry tracing
-resource = Resource(attributes={SERVICE_NAME: "neuroflow-api"})
-provider = TracerProvider(resource=resource)
-# Using gRPC exporter to Jaeger
-otlp_exporter = OTLPSpanExporter(
-    endpoint=f"http://{settings.JAEGER_HOST}:{settings.JAEGER_PORT}", insecure=True
-)
-processor = BatchSpanProcessor(otlp_exporter)
-provider.add_span_processor(processor)
-trace.set_tracer_provider(provider)
+# Setup opentelemetry tracing (graceful degradation if Jaeger unavailable)
+try:
+    resource = Resource(attributes={SERVICE_NAME: "neuroflow-api"})
+    provider = TracerProvider(resource=resource)
+    otlp_exporter = OTLPSpanExporter(
+        endpoint=f"http://{settings.JAEGER_HOST}:{settings.JAEGER_PORT}", insecure=True
+    )
+    processor = BatchSpanProcessor(otlp_exporter)
+    provider.add_span_processor(processor)
+    trace.set_tracer_provider(provider)
+    logger.info("OpenTelemetry tracing initialized.")
+except Exception as e:
+    logger.warning(f"OpenTelemetry tracing unavailable: {e}")
+
 
 
 @asynccontextmanager
