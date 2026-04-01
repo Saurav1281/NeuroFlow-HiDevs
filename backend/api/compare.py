@@ -11,12 +11,12 @@ from redis.asyncio import Redis
 from backend.db.pool import get_pool
 from backend.providers.client import NeuroFlowClient
 from backend.utils.logger import handle_errors, retry_on_failure
-from pipelines.generation.generator import Generator
-from pipelines.retrieval.context_assembler import ContextAssembler
-from pipelines.retrieval.query_processor import QueryProcessor
-from pipelines.retrieval.reranker import Reranker
-from pipelines.retrieval.retrieval_pipeline import RetrievalPipeline
-from pipelines.retrieval.retriever import Retriever
+from backend.pipelines.generation.generator import Generator
+from backend.pipelines.retrieval.context_assembler import ContextAssembler
+from backend.pipelines.retrieval.query_processor import QueryProcessor
+from backend.pipelines.retrieval.reranker import Reranker
+from backend.pipelines.retrieval.retrieval_pipeline import RetrievalPipeline
+from backend.pipelines.retrieval.retriever import Retriever
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/compare", tags=["compare"])
