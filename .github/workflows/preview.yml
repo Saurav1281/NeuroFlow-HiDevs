@@ -1,0 +1,73 @@
+name: Preview Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Create or Update Preview Environment
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          ENV_NAME="pr-${{ github.event.pull_request.number }}"
+          railway environment create "$ENV_NAME" 2>/dev/null || echo "Environment $ENV_NAME already exists"
+          railway up --environment "$ENV_NAME" --detach
+
+      - name: Wait for Deployment Health
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "Waiting 60s for services to initialize..."
+          sleep 60
+
+      - name: Comment PR with Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const body = [
+              '## 🚀 Preview Deployment',
+              '',
+              `Environment: \`pr-${prNumber}\``,
+              '',
+              'Check the [Railway Dashboard](https://railway.app) for service URLs.',
+              '',
+              '### Verification',
+              '```bash',
+              `./scripts/verify_production.sh <PREVIEW_URL>`,
+              '```',
+            ].join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  cleanup-preview:
+    if: github.event.action == 'closed' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Delete Preview Environment
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway environment delete "pr-${{ github.event.pull_request.number }}" --yes || true
