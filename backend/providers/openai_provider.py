@@ -16,7 +16,7 @@ from typing import AsyncGenerator
 
 from openai import AsyncOpenAI, RateLimitError
 
-from providers.base import BaseLLMProvider, ChatMessage, GenerationResult
+from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
 
 logger = logging.getLogger(__name__)
 
