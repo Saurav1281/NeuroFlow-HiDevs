@@ -18,7 +18,7 @@ from typing import AsyncGenerator
 
 from anthropic import AsyncAnthropic, RateLimitError
 
-from providers.base import BaseLLMProvider, ChatMessage, GenerationResult
+from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
 
 logger = logging.getLogger(__name__)
 
