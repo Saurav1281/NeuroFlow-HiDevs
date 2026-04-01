@@ -1,28 +1,26 @@
-# Stage 1: Dependencies
-FROM python:3.11-slim AS deps
-WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    libmagic1 \
-    && rm -rf /var/lib/apt/lists/*
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+FROM python:3.11-slim
 
-# Stage 2: Runtime (minimal, non-root)
-FROM python:3.11-slim AS runtime
+WORKDIR /app
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libmagic1 \
     && rm -rf /var/lib/apt/lists/*
-RUN groupadd -r neuroflow && useradd -r -g neuroflow neuroflow
-WORKDIR /app
-COPY --from=deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=deps /usr/local/bin /usr/local/bin
-COPY . .
-RUN chown -R neuroflow:neuroflow /app
-USER neuroflow
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt \
+        --extra-index-url https://download.pytorch.org/whl/cpu
+
+COPY . /app/backend
+
+ENV PYTHONPATH=/app \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/health || exit 1
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+CMD uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2
