@@ -5,11 +5,11 @@ from typing import Any
 
 from backend.providers.client import NeuroFlowClient
 from backend.db.pool import init_pool, get_pool
-from pipelines.retrieval.query_processor import QueryProcessor
-from pipelines.retrieval.retriever import Retriever
-from pipelines.retrieval.reranker import Reranker
-from pipelines.retrieval.context_assembler import ContextAssembler
-from pipelines.retrieval.retrieval_pipeline import RetrievalPipeline
+from backend.pipelines.retrieval.query_processor import QueryProcessor
+from backend.pipelines.retrieval.retriever import Retriever
+from backend.pipelines.retrieval.reranker import Reranker
+from backend.pipelines.retrieval.context_assembler import ContextAssembler
+from backend.pipelines.retrieval.retrieval_pipeline import RetrievalPipeline
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

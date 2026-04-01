@@ -10,8 +10,8 @@ from backend.db.pool import get_pool
 from backend.providers.client import NeuroFlowClient
 from backend.providers.base import ChatMessage
 from backend.providers.router import RoutingCriteria
-from pipelines.retrieval.query_processor import QueryProcessor, ProcessedQuery
-from pipelines.retrieval.fusion import RetrievalResult, reciprocal_rank_fusion
+from backend.pipelines.retrieval.query_processor import QueryProcessor, ProcessedQuery
+from backend.pipelines.retrieval.fusion import RetrievalResult, reciprocal_rank_fusion
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer("neuroflow.retrieval")

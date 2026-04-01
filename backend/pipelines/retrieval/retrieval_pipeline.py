@@ -4,10 +4,10 @@ from typing import Any
 from opentelemetry import trace
 from backend.monitoring.metrics import retrieval_latency
 
-from pipelines.retrieval.query_processor import QueryProcessor
-from pipelines.retrieval.retriever import Retriever
-from pipelines.retrieval.reranker import Reranker
-from pipelines.retrieval.context_assembler import ContextAssembler
+from backend.pipelines.retrieval.query_processor import QueryProcessor
+from backend.pipelines.retrieval.retriever import Retriever
+from backend.pipelines.retrieval.reranker import Reranker
+from backend.pipelines.retrieval.context_assembler import ContextAssembler
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer("neuroflow.retrieval")

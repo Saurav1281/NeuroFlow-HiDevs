@@ -1,0 +1,16 @@
+﻿python : Traceback (most recent call last):
+At line:1 char:1
++ python test.py 2>&1 | Out-File -Encoding utf8 
+trace.txt
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceb 
+   ack (most recent call last)::String) [], Remote  
+  Exception
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\Saurav\.gemini\antigravity\scratch\
+neuroflow\test.py", line 10, in <module>
+    from backend.main import app
+ImportError: cannot import name 'app' from 
+'backend.main' (C:\Users\Saurav\.gemini\antigravity\
+scratch\neuroflow\backend\main.py)

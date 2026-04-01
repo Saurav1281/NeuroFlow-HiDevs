@@ -12,8 +12,8 @@ from backend.db.pool import get_pool
 from backend.providers.client import NeuroFlowClient
 from backend.providers.base import ChatMessage
 from backend.providers.router import RoutingCriteria
-from pipelines.generation.prompt_builder import PromptBuilder
-from pipelines.generation.citations import CitationProcessor
+from backend.pipelines.generation.prompt_builder import PromptBuilder
+from backend.pipelines.generation.citations import CitationProcessor
 from backend.monitoring.metrics import (
     queries_total, 
     generation_latency, 

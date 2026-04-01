@@ -6,9 +6,9 @@ from typing import Any
 
 from backend.db.pool import init_pool
 from backend.providers.client import NeuroFlowClient
-from pipelines.retrieval.query_processor import QueryProcessor
-from pipelines.retrieval.reranker import Reranker
-from pipelines.retrieval.retriever import Retriever
+from backend.pipelines.retrieval.query_processor import QueryProcessor
+from backend.pipelines.retrieval.reranker import Reranker
+from backend.pipelines.retrieval.retriever import Retriever
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

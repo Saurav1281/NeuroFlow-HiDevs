@@ -7,7 +7,7 @@ from opentelemetry import trace
 from backend.providers.client import NeuroFlowClient
 from backend.providers.base import ChatMessage
 from backend.providers.router import RoutingCriteria
-from pipelines.retrieval.fusion import RetrievalResult
+from backend.pipelines.retrieval.fusion import RetrievalResult
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer("neuroflow.retrieval")

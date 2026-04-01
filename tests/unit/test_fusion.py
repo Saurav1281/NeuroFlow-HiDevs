@@ -1,5 +1,5 @@
 import pytest
-from pipelines.retrieval.fusion import RetrievalResult, reciprocal_rank_fusion
+from backend.pipelines.retrieval.fusion import RetrievalResult, reciprocal_rank_fusion
 
 def test_rrf_basic():
     # List 1: A (rank 0), B (rank 1)
