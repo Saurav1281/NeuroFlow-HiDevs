@@ -176,6 +176,3 @@ NeuroFlow is architected with a **Defense-in-Depth** model:
 
 ---
 
-<div align="center">
-Built with ❤️ for the HiDevs AI Engineering Portfolio
-</div>
