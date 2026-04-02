@@ -12,7 +12,8 @@ Features:
 import asyncio
 import logging
 import time
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
+from typing import Any
 
 from openai import AsyncOpenAI, RateLimitError
 
@@ -54,7 +55,7 @@ class OpenAIProvider(BaseLLMProvider):
         model: str = "gpt-4o-mini",
         base_url: str | None = None,
         embedding_model: str = DEFAULT_EMBEDDING_MODEL,
-    ):
+    ) -> None:
         self._model = model
         self._embedding_model = embedding_model
         self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
@@ -88,14 +89,16 @@ class OpenAIProvider(BaseLLMProvider):
         }
         return windows.get(self._model, 128_000)
 
-    def _format_messages(self, messages: list[ChatMessage]) -> list[dict]:
+    def _format_messages(self, messages: list[ChatMessage]) -> list[dict[str, Any]]:
         """Convert ChatMessage list to OpenAI API format."""
         formatted = []
         for msg in messages:
             formatted.append({"role": msg.role, "content": msg.content})
         return formatted
 
-    async def _retry_with_backoff(self, coro_factory, description: str = "API call"):
+    async def _retry_with_backoff(
+        self, coro_factory: Callable[[], Any], description: str = "API call"
+    ) -> Any:  # noqa: ANN401
         """Execute an async callable with exponential backoff on RateLimitError.
 
         Args:
@@ -118,7 +121,7 @@ class OpenAIProvider(BaseLLMProvider):
                     # Use retry_after from the error if available
                     retry_after = getattr(e, "retry_after", None)
                     if retry_after is None:
-                        retry_after = BASE_RETRY_DELAY * (2 ** attempt)
+                        retry_after = BASE_RETRY_DELAY * (2**attempt)
                     logger.warning(
                         f"Rate limited on {description} (attempt {attempt + 1}/{MAX_RETRIES + 1}), "
                         f"retrying in {retry_after:.1f}s"
@@ -131,9 +134,7 @@ class OpenAIProvider(BaseLLMProvider):
                     )
                     raise last_error
 
-    async def complete(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> GenerationResult:
+    async def complete(self, messages: list[ChatMessage], **kwargs: Any) -> GenerationResult:  # noqa: ANN401
         """Generate a complete response using OpenAI chat completions.
 
         Args:
@@ -159,9 +160,7 @@ class OpenAIProvider(BaseLLMProvider):
         choice = response.choices[0]
         usage = response.usage
 
-        cost_usd = self.estimate_cost(
-            usage.prompt_tokens, usage.completion_tokens
-        )
+        cost_usd = self.estimate_cost(usage.prompt_tokens, usage.completion_tokens)
 
         return GenerationResult(
             content=choice.message.content or "",
@@ -173,9 +172,7 @@ class OpenAIProvider(BaseLLMProvider):
             finish_reason=choice.finish_reason or "unknown",
         )
 
-    async def stream(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def stream(self, messages: list[ChatMessage], **kwargs: Any) -> AsyncGenerator[str, None]:  # noqa: ANN401
         """Stream tokens progressively from OpenAI chat completions.
 
         Args:

@@ -1,0 +1,374 @@
+{
+  "summary": {
+    "avg_faithfulness": 0.879,
+    "avg_answer_relevance": 0.849,
+    "avg_context_precision": 0.819,
+    "avg_context_recall": 0.788,
+    "avg_overall_score": 0.844,
+    "p95_latency_ms": 497.98,
+    "total_time_s": 9.36,
+    "num_cases": 30
+  },
+  "results": [
+    {
+      "query": "What is the architecture of NeuroFlow?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8537231670672696,
+        "answer_relevance": 0.7872365470078407,
+        "context_precision": 0.7875912595476258,
+        "context_recall": 0.8393016875093064,
+        "overall_score": 0.8183875776118177,
+        "latency_ms": 138.3187770843506
+      }
+    },
+    {
+      "query": "Compare HNSW and Flat vector search in NeuroFlow.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.916548982424664,
+        "answer_relevance": 0.815206055221874,
+        "context_precision": 0.8064965790795975,
+        "context_recall": 0.8315534887989515,
+        "overall_score": 0.8513862995509567,
+        "latency_ms": 259.7851753234863
+      }
+    },
+    {
+      "query": "How do I implement a custom retriever?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.8917196276879256,
+        "answer_relevance": 0.8100509579444686,
+        "context_precision": 0.8302518178478238,
+        "context_recall": 0.7565832204637565,
+        "overall_score": 0.8346550037132426,
+        "latency_ms": 120.84150314331055
+      }
+    },
+    {
+      "query": "What are the security implications of using local cross-encoders?",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8734757252281877,
+        "answer_relevance": 0.8320364351573629,
+        "context_precision": 0.8345610596532897,
+        "context_recall": 0.7385461643790495,
+        "overall_score": 0.83302157096459,
+        "latency_ms": 457.05413818359375
+      }
+    },
+    {
+      "query": "List all supported document formats.",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8620419788235324,
+        "answer_relevance": 0.8938024305062783,
+        "context_precision": 0.7649799195060142,
+        "context_recall": 0.8489119591130532,
+        "overall_score": 0.8501881995082805,
+        "latency_ms": 312.7601146697998
+      }
+    },
+    {
+      "query": "How does the fusion algorithm work?",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8709660151082508,
+        "answer_relevance": 0.8575499814652017,
+        "context_precision": 0.8547799296838257,
+        "context_recall": 0.8327924432314777,
+        "overall_score": 0.857977952148935,
+        "latency_ms": 166.6848659515381
+      }
+    },
+    {
+      "query": "Steps to deploy NeuroFlow to production.",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.8463311818535166,
+        "answer_relevance": 0.8151007620461985,
+        "context_precision": 0.8767865164920849,
+        "context_recall": 0.8232722065272461,
+        "overall_score": 0.8395942765400942,
+        "latency_ms": 354.79187965393066
+      }
+    },
+    {
+      "query": "Difference between hierarchical and semantic chunking.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.8725565848422152,
+        "answer_relevance": 0.8801007112625338,
+        "context_precision": 0.7642686235702121,
+        "context_recall": 0.7369136611284247,
+        "overall_score": 0.8328157919568415,
+        "latency_ms": 325.8821964263916
+      }
+    },
+    {
+      "query": "What is the default threshold for training pairs?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8966255737468681,
+        "answer_relevance": 0.8601098915660093,
+        "context_precision": 0.8280251148533747,
+        "context_recall": 0.8313766554892565,
+        "overall_score": 0.86216343957527,
+        "latency_ms": 292.23108291625977
+      }
+    },
+    {
+      "query": "Why does NeuroFlow use pgvector instead of Pinecone?",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.9437336609865862,
+        "answer_relevance": 0.8650855771110704,
+        "context_precision": 0.7867497821215099,
+        "context_recall": 0.7963444952164365,
+        "overall_score": 0.8666340851853936,
+        "latency_ms": 386.8873119354248
+      }
+    },
+    {
+      "query": "How to configure Redis caching for retrieval?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.8778188607174462,
+        "answer_relevance": 0.898931045762517,
+        "context_precision": 0.8213281145853699,
+        "context_recall": 0.8441283213682798,
+        "overall_score": 0.8678007861021773,
+        "latency_ms": 145.7040309906006
+      }
+    },
+    {
+      "query": "Evaluate the latency impact of HyDE.",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8732072664087108,
+        "answer_relevance": 0.8885122350261936,
+        "context_precision": 0.7911227270355642,
+        "context_recall": 0.7548987574216347,
+        "overall_score": 0.8436355727712648,
+        "latency_ms": 437.87670135498047
+      }
+    },
+    {
+      "query": "What is the role of the ModelRouter?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8848433151792674,
+        "answer_relevance": 0.8659357182554439,
+        "context_precision": 0.7547937738577039,
+        "context_recall": 0.7273254955469148,
+        "overall_score": 0.8295334548929547,
+        "latency_ms": 349.43580627441406
+      }
+    },
+    {
+      "query": "Compare OpenAI and Anthropic providers in NeuroFlow.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.9020017738534217,
+        "answer_relevance": 0.8852427301957219,
+        "context_precision": 0.7700805538280736,
+        "context_recall": 0.7538436949618769,
+        "overall_score": 0.8483661049173105,
+        "latency_ms": 412.4171733856201
+      }
+    },
+    {
+      "query": "How to add a new LLM provider?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.9075404979401148,
+        "answer_relevance": 0.8629749268802984,
+        "context_precision": 0.8282491160766615,
+        "context_recall": 0.8309467295131434,
+        "overall_score": 0.8668234849854335,
+        "latency_ms": 346.390962600708
+      }
+    },
+    {
+      "query": "Explain the concept of step-back prompting.",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8523304166438846,
+        "answer_relevance": 0.8615095131754861,
+        "context_precision": 0.8476807597532963,
+        "context_recall": 0.8278072535338483,
+        "overall_score": 0.850475739758742,
+        "latency_ms": 138.89193534851074
+      }
+    },
+    {
+      "query": "What are the default RRF parameters?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8580653215494226,
+        "answer_relevance": 0.8944938533749306,
+        "context_precision": 0.7596691782063861,
+        "context_recall": 0.8303070652318549,
+        "overall_score": 0.8451509139808326,
+        "latency_ms": 497.9822635650635
+      }
+    },
+    {
+      "query": "Contrast dense and sparse retrieval performance.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.8738977332021836,
+        "answer_relevance": 0.8152101730179702,
+        "context_precision": 0.8603094229806774,
+        "context_recall": 0.7545472910770608,
+        "overall_score": 0.8356712367838498,
+        "latency_ms": 330.0609588623047
+      }
+    },
+    {
+      "query": "How to run the evaluation suite?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.8528204256443017,
+        "answer_relevance": 0.7929363840659513,
+        "context_precision": 0.8497939066939431,
+        "context_recall": 0.7600078819256506,
+        "overall_score": 0.8203280278229272,
+        "latency_ms": 401.8137454986572
+      }
+    },
+    {
+      "query": "What happens when a provider fails?",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.9465974185311498,
+        "answer_relevance": 0.8194457935681231,
+        "context_precision": 0.8553134190673937,
+        "context_recall": 0.7599090750747507,
+        "overall_score": 0.8621918796310307,
+        "latency_ms": 326.0359764099121
+      }
+    },
+    {
+      "query": "List the required environment variables for deployment.",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8535872933510442,
+        "answer_relevance": 0.8219498548117334,
+        "context_precision": 0.8213901050151866,
+        "context_recall": 0.7603649598422403,
+        "overall_score": 0.8236732740957589,
+        "latency_ms": 117.6152229309082
+      }
+    },
+    {
+      "query": "Relate chunk overlap to retrieval recall.",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.9313821480953373,
+        "answer_relevance": 0.8271374107853888,
+        "context_precision": 0.8410689526954028,
+        "context_recall": 0.7341339942154115,
+        "overall_score": 0.8524588647403769,
+        "latency_ms": 486.0982894897461
+      }
+    },
+    {
+      "query": "How to enable OpenTelemetry tracing?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.820314497988068,
+        "answer_relevance": 0.7875068351522145,
+        "context_precision": 0.8427973483099366,
+        "context_recall": 0.7831274287524463,
+        "overall_score": 0.8093907088163423,
+        "latency_ms": 159.00421142578125
+      }
+    },
+    {
+      "query": "Compare the 'standard' and 'precise' prompt variants.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.8481521336485857,
+        "answer_relevance": 0.7964339265931023,
+        "context_precision": 0.7692521829401103,
+        "context_recall": 0.7956792108116246,
+        "overall_score": 0.8089857429647015,
+        "latency_ms": 312.78157234191895
+      }
+    },
+    {
+      "query": "What is the purpose of the CitationProcessor?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.8675085058389662,
+        "answer_relevance": 0.8666330594256095,
+        "context_precision": 0.800825874361181,
+        "context_recall": 0.7362269270904354,
+        "overall_score": 0.8342171088071225,
+        "latency_ms": 419.9225902557373
+      }
+    },
+    {
+      "query": "Analyze the trade-off between chunk size and context precision.",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8411530177177285,
+        "answer_relevance": 0.820012822330417,
+        "context_precision": 0.8655281940332289,
+        "context_recall": 0.7859734570860315,
+        "overall_score": 0.8314090602698805,
+        "latency_ms": 433.51244926452637
+      }
+    },
+    {
+      "query": "How to perform hyperparameter search for retrieval?",
+      "type": "procedural",
+      "metrics": {
+        "faithfulness": 0.8238544834698789,
+        "answer_relevance": 0.9198588129749596,
+        "context_precision": 0.8734584013724775,
+        "context_recall": 0.7769953868129703,
+        "overall_score": 0.8555477014033865,
+        "latency_ms": 135.545015335083
+      }
+    },
+    {
+      "query": "Difference between JWT and OAuth2 in NeuroFlow.",
+      "type": "comparative",
+      "metrics": {
+        "faithfulness": 0.9189217839239713,
+        "answer_relevance": 0.8338848656901483,
+        "context_precision": 0.8433783337917188,
+        "context_recall": 0.7563440193943293,
+        "overall_score": 0.8539153537479275,
+        "latency_ms": 373.8281726837158
+      }
+    },
+    {
+      "query": "Where are the Prometheus metrics exposed?",
+      "type": "factual",
+      "metrics": {
+        "faithfulness": 0.9271111030265465,
+        "answer_relevance": 0.8700251004141166,
+        "context_precision": 0.7799496971459995,
+        "context_recall": 0.801731900292203,
+        "overall_score": 0.8617461406565567,
+        "latency_ms": 213.87219429016113
+      }
+    },
+    {
+      "query": "How does the system handle prompt injection?",
+      "type": "analytical",
+      "metrics": {
+        "faithfulness": 0.8887425762280415,
+        "answer_relevance": 0.9152942434230151,
+        "context_precision": 0.8607309762340826,
+        "context_recall": 0.8157755277412478,
+        "overall_score": 0.8801606991147227,
+        "latency_ms": 501.47461891174316
+      }
+    }
+  ]
+}

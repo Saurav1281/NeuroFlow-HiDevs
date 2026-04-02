@@ -11,20 +11,21 @@ Features:
 
 import logging
 import time
-from typing import AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
+from typing import Any, Optional
 
 from opentelemetry import trace
 from redis.asyncio import Redis
 
 from backend.config import settings
+from backend.providers.anthropic_provider import AnthropicProvider
 from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
 from backend.providers.openai_provider import OpenAIProvider
-from backend.providers.anthropic_provider import AnthropicProvider
 from backend.providers.router import (
-    ModelRouter,
-    RoutingCriteria,
     FallbackChain,
     ModelConfig,
+    ModelRouter,
+    RoutingCriteria,
 )
 
 logger = logging.getLogger(__name__)
@@ -52,14 +53,14 @@ class NeuroFlowClient:
 
     _instance: Optional["NeuroFlowClient"] = None
 
-    def __new__(cls, *args, **kwargs) -> "NeuroFlowClient":
+    def __new__(cls, *args: Any, **kwargs: Any) -> "NeuroFlowClient":
         """Ensure only one instance of NeuroFlowClient exists (singleton)."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, redis: Redis | None = None):
+    def __init__(self, redis: Redis | None = None) -> None:
         if self._initialized:
             return
         self._redis = redis
@@ -77,9 +78,7 @@ class NeuroFlowClient:
         # Initialize OpenAI providers
         openai_key = getattr(settings, "OPENAI_API_KEY", None)
         if openai_key:
-            self._providers["openai:gpt-4o"] = OpenAIProvider(
-                api_key=openai_key, model="gpt-4o"
-            )
+            self._providers["openai:gpt-4o"] = OpenAIProvider(api_key=openai_key, model="gpt-4o")
             self._providers["openai:gpt-4o-mini"] = OpenAIProvider(
                 api_key=openai_key, model="gpt-4o-mini"
             )
@@ -114,9 +113,7 @@ class NeuroFlowClient:
             fallback_providers.append((key, provider))
         if fallback_providers:
             self._fallback_chain = FallbackChain(fallback_providers)
-            logger.info(
-                f"Fallback chain configured with {len(fallback_providers)} providers"
-            )
+            logger.info(f"Fallback chain configured with {len(fallback_providers)} providers")
 
     def _get_provider(self, config: ModelConfig) -> BaseLLMProvider:
         """Resolve a provider instance from a ModelConfig.
@@ -166,7 +163,7 @@ class NeuroFlowClient:
         self,
         messages: list[ChatMessage],
         routing_criteria: RoutingCriteria | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> GenerationResult:
         """Send a chat completion request with automatic routing.
 
@@ -221,9 +218,7 @@ class NeuroFlowClient:
 
                 # Try fallback chain
                 if self._fallback_chain:
-                    logger.warning(
-                        f"Primary provider failed: {e}, trying fallback chain"
-                    )
+                    logger.warning(f"Primary provider failed: {e}, trying fallback chain")
                     result = await self._fallback_chain.complete(messages, **kwargs)
                     span.set_attribute("fallback_used", True)
                     span.set_attribute("model", result.model)
@@ -235,7 +230,7 @@ class NeuroFlowClient:
         self,
         messages: list[ChatMessage],
         routing_criteria: RoutingCriteria | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
         """Stream tokens with automatic routing and telemetry.
 
@@ -318,7 +313,7 @@ class NeuroFlowClient:
 
             return embeddings
 
-    async def get_metrics(self, model_name: str) -> dict:
+    async def get_metrics(self, model_name: str) -> dict[str, Any]:
         """Retrieve tracked metrics for a specific model from Redis.
 
         Args:

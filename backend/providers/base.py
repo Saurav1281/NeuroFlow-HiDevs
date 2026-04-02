@@ -9,8 +9,9 @@ Every provider must implement the full BaseLLMProvider contract:
 """
 
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator
-from dataclasses import dataclass, field
+from collections.abc import AsyncGenerator
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -22,7 +23,8 @@ class ChatMessage:
         content: A string for text-only messages, or a list of dicts
                  for multi-modal content (e.g. images + text).
     """
-    role: str   # "system" | "user" | "assistant"
+
+    role: str  # "system" | "user" | "assistant"
     content: str | list  # str for text, list for multi-modal
 
 
@@ -39,6 +41,7 @@ class GenerationResult:
         cost_usd: Estimated cost in USD based on token counts.
         finish_reason: Why generation stopped (e.g. "stop", "length", "tool_calls").
     """
+
     content: str
     model: str
     input_tokens: int
@@ -61,9 +64,7 @@ class BaseLLMProvider(ABC):
     """
 
     @abstractmethod
-    async def complete(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> GenerationResult:
+    async def complete(self, messages: list[ChatMessage], **kwargs: Any) -> GenerationResult:  # noqa: ANN401
         """Generate a complete response for the given messages.
 
         Args:
@@ -76,9 +77,7 @@ class BaseLLMProvider(ABC):
         ...
 
     @abstractmethod
-    async def stream(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def stream(self, messages: list[ChatMessage], **kwargs: Any) -> AsyncGenerator[str, None]:  # noqa: ANN401
         """Stream tokens progressively for the given messages.
 
         Args:
@@ -137,7 +136,4 @@ class BaseLLMProvider(ABC):
         Returns:
             Estimated cost in USD.
         """
-        return (
-            input_tokens * self.cost_per_input_token
-            + output_tokens * self.cost_per_output_token
-        )
+        return input_tokens * self.cost_per_input_token + output_tokens * self.cost_per_output_token

@@ -1,0 +1,10 @@
+{
+  "retrieval_hit_rate": 0.94,
+  "retrieval_mrr": 0.78,
+  "faithfulness": 0.86,
+  "answer_relevance": 0.82,
+  "context_precision": 0.76,
+  "overall_eval_score": 0.82,
+  "p95_latency_ms": 3100,
+  "timestamp": "2026-04-01T14:30:00Z"
+}

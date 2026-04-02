@@ -1,0 +1,10 @@
+{
+  "title": "Initial Setup Verification",
+  "panels": [
+    {
+      "title": "API Status",
+      "type": "stat",
+      "targets": [{ "expr": "up{job='neuroflow-api'}" }]
+    }
+  ]
+}

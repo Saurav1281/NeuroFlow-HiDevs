@@ -1,0 +1,12 @@
+[
+    {
+        "query": "What are the core components of the transformer architecture?",
+        "ground_truth_chunk_id": "chunk-1",
+        "relevant_chunk_ids": ["chunk-1", "chunk-2"]
+    },
+    {
+        "query": "How does self-attention differ from standard attention?",
+        "ground_truth_chunk_id": "chunk-3",
+        "relevant_chunk_ids": ["chunk-3", "chunk-4"]
+    }
+]

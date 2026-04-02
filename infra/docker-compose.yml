@@ -12,34 +12,85 @@ services:
       test: ["CMD", "pg_isready", "-U", "neuroflow"]
       interval: 5s
       retries: 5
+    networks:
+      - neuroflow-net
 
   redis:
     image: redis:7-alpine
     command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
+    networks:
+      - neuroflow-net
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow
     ports: ["5000:5000"]
     depends_on: [postgres]
+    networks:
+      - neuroflow-net
 
   api:
-    build: ../backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     ports: ["8000:8000"]
     depends_on: [postgres, redis, mlflow]
     env_file: ../.env
+    networks:
+      - neuroflow-net
 
   worker:
-    build: ../backend
-    command: python -m worker
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    command: python -m backend.worker
     depends_on: [postgres, redis]
     env_file: ../.env
+    networks:
+      - neuroflow-net
 
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports: ["16686:16686", "4317:4317"]
+    networks:
+      - neuroflow-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+    networks:
+      - neuroflow-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - neuroflow-net
+
+networks:
+  neuroflow-net:
+    driver: bridge
 
 volumes:
   postgres_data:
+  grafana_data:

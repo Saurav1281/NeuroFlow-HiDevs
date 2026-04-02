@@ -1,10 +1,13 @@
-import httpx
-from redis.asyncio import Redis
-from backend.db.pool import get_pool
-from backend.config import settings
 import logging
 
+import httpx
+from redis.asyncio import Redis
+
+from backend.config import settings
+from backend.db.pool import get_pool
+
 logger = logging.getLogger(__name__)
+
 
 async def check_postgres() -> bool:
     try:
@@ -16,13 +19,14 @@ async def check_postgres() -> bool:
         logger.error(f"Postgres health check failed: {e}")
         return False
 
+
 async def check_redis() -> bool:
     try:
         redis = Redis(
             host=settings.REDIS_HOST,
             port=settings.REDIS_PORT,
             password=settings.REDIS_PASSWORD,
-            socket_connect_timeout=2.0
+            socket_connect_timeout=2.0,
         )
         await redis.ping()
         await redis.aclose()
@@ -30,6 +34,7 @@ async def check_redis() -> bool:
     except Exception as e:
         logger.error(f"Redis health check failed: {e}")
         return False
+
 
 async def check_mlflow() -> bool:
     try:

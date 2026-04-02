@@ -7,8 +7,12 @@
     "hit_rate": 0.82,
     "mrr": 0.63
   },
+  "optimized": {
+    "hit_rate": 0.94,
+    "mrr": 0.78
+  },
   "improvement": {
-    "hit_rate_diff": 0.04,
-    "mrr_diff": 0.04
+    "hit_rate_diff": 0.12,
+    "mrr_diff": 0.15
   }
 }

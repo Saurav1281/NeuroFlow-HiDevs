@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.ipynb_checkpoints
+venv/
+.env
+
+# Logs
+*.log
+system.log
+server.log
+build_log.txt
+routes.txt
+routes.log
+*.out
+test_err.txt
+test_out.txt
+test_output.txt
+test_results.txt
+test_results*.txt
+startup_err.txt
+startup_out.txt
+
+# Tools/Security
+.secrets.baseline
+generate_certs.py
+inspect_routes.py
+test_security.py
+ruff_errors.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# MLflow
+mlruns/
+
+# Project Specific
+tmp/
+training_data/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+backend/__pycache__/
+backend/venv/
+sdk/__pycache__/
+sdk/*.egg-info/
+sdk/dist/
+sdk/build/
+sdk/neuroflow/__pycache__/

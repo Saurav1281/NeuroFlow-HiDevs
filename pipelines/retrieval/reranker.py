@@ -44,12 +44,14 @@ class Reranker:
         self, 
         query: str, 
         candidates: list[RetrievalResult], 
+        pipeline_id: str = "default",
         top_n: int = 40,
         use_local: bool = True
     ) -> list[RetrievalResult]:
         """Rerank the top-N candidates using either a local model or LLM API."""
-        with tracer.start_as_current_span("reranker.rerank") as span:
+        with tracer.start_as_current_span("retrieval.rerank") as span:
             span.set_attribute("query", query)
+            span.set_attribute("pipeline_id", str(pipeline_id))
             span.set_attribute("num_candidates", len(candidates))
             span.set_attribute("use_local", use_local)
             
@@ -60,17 +62,18 @@ class Reranker:
             
             try:
                 if use_local and CrossEncoder:
-                    return await self._rerank_local(query, candidates_to_rank)
+                    return await self._rerank_local(query, candidates_to_rank, pipeline_id=pipeline_id)
                 else:
-                    return await self._rerank_api(query, candidates_to_rank)
+                    return await self._rerank_api(query, candidates_to_rank, pipeline_id=pipeline_id)
             except Exception as e:
                 logger.error(f"Reranking failed: {e}. Returning original order.")
                 span.record_exception(e)
                 return candidates_to_rank
 
-    async def _rerank_local(self, query: str, candidates: list[RetrievalResult]) -> list[RetrievalResult]:
+    async def _rerank_local(self, query: str, candidates: list[RetrievalResult], pipeline_id: str = "default") -> list[RetrievalResult]:
         """Rerank using a local sentence-transformers cross-encoder."""
-        with tracer.start_as_current_span("reranker._local_rerank") as span:
+        with tracer.start_as_current_span("retrieval.dense") as span: # Re-using dense for local cross-encoder or keep as rerank.local
+            span.set_attribute("pipeline_id", str(pipeline_id))
             self._load_local_model()
             
             pairs = [(query, c.content) for c in candidates]
@@ -81,9 +84,10 @@ class Reranker:
                 
             return sorted(candidates, key=lambda x: x.score, reverse=True)
 
-    async def _rerank_api(self, query: str, candidates: list[RetrievalResult]) -> list[RetrievalResult]:
+    async def _rerank_api(self, query: str, candidates: list[RetrievalResult], pipeline_id: str = "default") -> list[RetrievalResult]:
         """Rerank using LLM-as-a-judge."""
-        with tracer.start_as_current_span("reranker._api_rerank") as span:
+        with tracer.start_as_current_span("retrieval.rerank") as span:
+            span.set_attribute("pipeline_id", str(pipeline_id))
             async def score_one(candidate: RetrievalResult) -> tuple[RetrievalResult, float]:
                 prompt = f"""Rate the relevance of this passage to the query on a scale of 0-10.
 Query: {query}

@@ -11,8 +11,9 @@ one fails with a non-retryable error.
 
 import json
 import logging
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
-from typing import AsyncGenerator, Optional
+from typing import Any
 
 from redis.asyncio import Redis
 
@@ -38,6 +39,7 @@ class RoutingCriteria:
         latency_budget_ms: Maximum acceptable latency in milliseconds.
         prefer_fine_tuned: Whether to prefer a fine-tuned model for this task_type.
     """
+
     task_type: str = "rag_generation"
     max_cost_per_call: float | None = None
     require_vision: bool = False
@@ -64,6 +66,7 @@ class ModelConfig:
         is_judge_model: Whether this model is suitable as an evaluation judge.
         avg_latency_ms: Average latency in milliseconds (for latency filtering).
     """
+
     provider: str
     model_name: str
     supports_vision: bool = False
@@ -76,7 +79,7 @@ class ModelConfig:
     avg_latency_ms: int = 1000
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ModelConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "ModelConfig":
         """Create a ModelConfig from a dictionary."""
         return cls(
             provider=data.get("provider", "openai"),
@@ -165,7 +168,7 @@ class ModelRouter:
 
     REDIS_KEY = "router:models"
 
-    def __init__(self, redis: Redis):
+    def __init__(self, redis: Redis) -> None:
         self._redis = redis
         self._model_configs: list[ModelConfig] = []
         self._loaded = False
@@ -179,24 +182,14 @@ class ModelRouter:
             raw = await self._redis.get(self.REDIS_KEY)
             if raw:
                 configs_data = json.loads(raw)
-                self._model_configs = [
-                    ModelConfig.from_dict(cfg) for cfg in configs_data
-                ]
-                logger.info(
-                    f"Loaded {len(self._model_configs)} models from Redis"
-                )
+                self._model_configs = [ModelConfig.from_dict(cfg) for cfg in configs_data]
+                logger.info(f"Loaded {len(self._model_configs)} models from Redis")
             else:
-                self._model_configs = [
-                    ModelConfig.from_dict(cfg) for cfg in DEFAULT_MODEL_CONFIGS
-                ]
-                logger.info(
-                    "No models in Redis, using default model configs"
-                )
+                self._model_configs = [ModelConfig.from_dict(cfg) for cfg in DEFAULT_MODEL_CONFIGS]
+                logger.info("No models in Redis, using default model configs")
         except Exception as e:
             logger.warning(f"Failed to load models from Redis: {e}, using defaults")
-            self._model_configs = [
-                ModelConfig.from_dict(cfg) for cfg in DEFAULT_MODEL_CONFIGS
-            ]
+            self._model_configs = [ModelConfig.from_dict(cfg) for cfg in DEFAULT_MODEL_CONFIGS]
         self._loaded = True
 
     async def _ensure_loaded(self) -> None:
@@ -236,16 +229,15 @@ class ModelRouter:
 
         # RULE 3: Evaluation task → must use judge model, never fine-tuned
         if criteria.task_type == "evaluation":
-            candidates = [
-                c for c in candidates if c.is_judge_model and not c.is_fine_tuned
-            ]
+            candidates = [c for c in candidates if c.is_judge_model and not c.is_fine_tuned]
             if not candidates:
                 raise ValueError("No suitable judge models available for evaluation")
 
         # RULE 4: Prefer fine-tuned for this task_type
         elif criteria.prefer_fine_tuned:
             fine_tuned = [
-                c for c in candidates
+                c
+                for c in candidates
                 if c.is_fine_tuned and criteria.task_type in c.fine_tuned_task_types
             ]
             if fine_tuned:
@@ -254,25 +246,19 @@ class ModelRouter:
         # RULE 5: Cost filtering
         if criteria.max_cost_per_call is not None:
             candidates = [
-                c for c in candidates
-                if self._estimate_call_cost(c) <= criteria.max_cost_per_call
+                c for c in candidates if self._estimate_call_cost(c) <= criteria.max_cost_per_call
             ]
             if not candidates:
                 raise ValueError(
-                    f"No models available within cost budget "
-                    f"${criteria.max_cost_per_call:.6f}"
+                    f"No models available within cost budget " f"${criteria.max_cost_per_call:.6f}"
                 )
 
         # RULE 6: Latency budget filtering
         if criteria.latency_budget_ms is not None:
-            candidates = [
-                c for c in candidates
-                if c.avg_latency_ms <= criteria.latency_budget_ms
-            ]
+            candidates = [c for c in candidates if c.avg_latency_ms <= criteria.latency_budget_ms]
             if not candidates:
                 raise ValueError(
-                    f"No models available within latency budget "
-                    f"{criteria.latency_budget_ms}ms"
+                    f"No models available within latency budget " f"{criteria.latency_budget_ms}ms"
                 )
 
         # RULE 7: Default — pick cheapest model
@@ -285,8 +271,7 @@ class ModelRouter:
 
         selected = candidates[0]
         logger.info(
-            f"Routed task_type={criteria.task_type} → "
-            f"{selected.provider}/{selected.model_name}"
+            f"Routed task_type={criteria.task_type} → " f"{selected.provider}/{selected.model_name}"
         )
         return selected
 
@@ -315,14 +300,12 @@ class FallbackChain:
         TimeoutError,
     )
 
-    def __init__(self, providers: list[tuple[str, BaseLLMProvider]]):
+    def __init__(self, providers: list[tuple[str, BaseLLMProvider]]) -> None:
         if not providers:
             raise ValueError("FallbackChain requires at least one provider")
         self._providers = providers
 
-    async def complete(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> GenerationResult:
+    async def complete(self, messages: list[ChatMessage], **kwargs: Any) -> GenerationResult:  # noqa: ANN401
         """Try each provider in order until one succeeds.
 
         Args:
@@ -352,9 +335,7 @@ class FallbackChain:
 
         raise last_error  # type: ignore[misc]
 
-    async def stream(
-        self, messages: list[ChatMessage], **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def stream(self, messages: list[ChatMessage], **kwargs: Any) -> AsyncGenerator[str, None]:  # noqa: ANN401
         """Stream tokens with fallback — tries each provider in order.
 
         If a provider fails during the initial stream setup,
@@ -391,4 +372,3 @@ class FallbackChain:
         if last_error:
             raise last_error
         raise RuntimeError("No providers available in FallbackChain")
-

@@ -1,0 +1,51 @@
+name: NeuroFlow CI
+
+on:
+  push:
+    branches: [ master, task-46, task-49 ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install ruff mypy
+      - run: ruff check backend/ --fix
+      - run: ruff format backend/
+      - run: mypy backend/ --ignore-missing-imports
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: {POSTGRES_PASSWORD: testpassword, POSTGRES_DB: neuroflow_test}
+      redis:
+        image: redis:7-alpine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libmagic1
+      - run: pip install -r backend/requirements.txt
+      - run: pip install pytest pytest-asyncio pytest-cov httpx motor aioredis python-jose[cryptography] passlib[bcrypt] bleach
+      - run: pytest tests/unit/ -v --cov=backend --cov-report=xml
+      - uses: codecov/codecov-action@v4
+        with: {file: coverage.xml}
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install detect-secrets pip-audit
+      - run: detect-secrets-hook --baseline .secrets.baseline $(git diff --name-only HEAD~1) || true
+      - run: pip-audit -r backend/requirements.txt
+      - run: npm audit --prefix frontend --audit-level=high

@@ -1,0 +1,71 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "expr": "neuroflow_eval_overall < 0.65",
+        "name": "Quality Degradation",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Faithfulness (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_faithfulness[24h])" }]
+    },
+    {
+      "title": "Answer Relevance (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
+    },
+    {
+      "title": "Context Precision (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
+    },
+    {
+      "title": "Context Recall (24h Avg)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "avg_over_time(neuroflow_eval_overall[24h])" }]
+    },
+    {
+      "title": "Overall Score Trend (7-Day)",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 16, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "neuroflow_eval_overall", "legendFormat": "Latest Score" },
+        { "expr": "avg_over_time(neuroflow_eval_overall[7d])", "legendFormat": "7d Moving Average" }
+      ]
+    },
+    {
+      "title": "Fine-tuning & Ingestion History",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 8, "x": 16, "y": 6 },
+      "targets": [
+        { "expr": "sum by (source_type) (increase(neuroflow_ingestion_docs_total[24h]))" }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["neuroflow", "quality"],
+  "templating": { "list": [] },
+  "time": { "from": "now-7d", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "NeuroFlow — Quality Monitor",
+  "uid": "neuroflow-quality",
+  "version": 1
+}
