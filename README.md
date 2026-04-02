@@ -6,13 +6,30 @@ NeuroFlow is an advanced Retrieval-Augmented Generation (RAG) platform designed 
 NeuroFlow is a production-hardened RAG system that integrates multi-stage retrieval (Hybrid search + Reranking) with a resilient streaming generation engine. It automates the entire document lifecycle from sandboxed ingestion and secret redaction to continuous quality auditing via RAGAS-compatible metrics and MLflow experiment tracking.
 
 ## 2. Architecture
-![Architecture Diagram](docs/architecture.md)
-*See [docs/architecture.md](docs/architecture.md) for the full Mermaid diagram and detailed subsystem descriptions.*
+
+```mermaid
+graph TD
+    User([User / SDK]) -- HTTPS / SSE --> Nginx[Nginx Load Balancer]
+    Nginx -- Proxy --> API[FastAPI backend]
+    API -- Read/Write --> DB[(PostgreSQL + pgvector)]
+    API -- Pub/Sub / Cache --> Redis[(Redis)]
+    API -- Async Tasks --> Worker[Celery/RQ Worker]
+    Worker -- Embedding/Gen --> LLM[LLM Providers]
+    Worker -- Track --> MLflow[MLflow]
+    
+    subgraph Monitoring
+        Jaeger[Jaeger Tracing]
+        Prometheus[Prometheus Metrics]
+    end
+    
+    API -- Trace --> Jaeger
+    API -- Metrics --> Prometheus
+```
 
 - **API Engine**: FastAPI-based orchestration with JWT auth and rate limiting.
 - **Retrieval Pipeline**: Hybrid HNSW vector search + Reciprocal Rank Fusion (RRF).
-- **Resilience Layer**: Redis-backed circuit breakers and backpressure managers.
-- **Observability**: Distributed tracing (Jaeger), metrics (Prometheus), and ML monitoring (MLflow).
+- **Resilient Generation**: Redis-backed circuit breakers and backpressure managers.
+- **Observability**: Distributed tracing (Jaeger), metrics (Prometheus), and ML tracking (MLflow).
 
 ## 3. Key Features
 - **Hybrid Multi-Stage Retrieval**:
@@ -75,16 +92,24 @@ curl -X POST -H "Content-Type: application/json" -d '{"query": "What is NeuroFlo
 ```
 
 ## 7. API Reference
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `POST` | `/auth/token` | None | Get JWT access token. |
-| `POST` | `/documents` | Ingest | Upload and sandbox process raw documents. |
-| `POST` | `/query` | Query | Execute a RAG query (sync or SSE stream). |
-| `GET` | `/query/{id}/stream` | Query | SSE stream for real-time word generation. |
-| `GET` | `/pipelines` | None | List available RAG pipeline configurations. |
-| `GET` | `/evaluations/{id}`| Query | Retrieve quality metrics for a specific run. |
-| `POST` | `/compare/compare` | Admin | Parallel A/B test of two pipeline configs. |
-| `GET` | `/health` | None | System health check (DB, Redis, LLM). |
+
+| Category | Method | Path | Auth | Description |
+|----------|--------|------|------|-------------|
+| **Auth** | `POST` | `/auth/token` | None | Get JWT access token (admin/query/ingest). |
+| **Documents**| `POST` | `/documents` | Ingest| Upload and sandbox-process raw files. |
+| | `POST` | `/documents/ingest` | Ingest| Ingest document from a public URL. |
+| | `GET` | `/documents` | Query | List all ingested documents and status. |
+| **Query** | `POST` | `/query` | Query | Execute a RAG query (sync or SSE run_id). |
+| | `GET` | `/query/{id}/stream` | Query | SSE stream for real-time token generation. |
+| **Pipelines**| `POST` | `/pipelines` | Admin | Create/Version a new RAG pipeline config. |
+| | `GET` | `/pipelines/{id}/analytics`| Admin | Get p95 latency and cost analytics. |
+| | `GET` | `/pipelines/{id}/suggestions`| Admin| Get rule-based architecture optimizations. |
+| **A/B Test**| `POST` | `/compare/compare` | Admin | Parallel execution of dual pipelines. |
+| **Evaluation**| `GET` | `/evaluations/{id}` | Query | Fetch faithfulness/relevance judge scores. |
+| | `GET` | `/evaluations/stream`| Query | Live SSE stream of incoming evaluations. |
+| **Fine-tune**| `POST` | `/finetune/jobs` | Admin | Export high-quality traces to JSONL. |
+| **System** | `GET` | `/health` | None | Health check (Postgres, Redis, LLM, CB). |
+| | `GET` | `/metrics` | None | Prometheus-formatted application metrics. |
 
 ## 8. SDK Usage
 ```python
