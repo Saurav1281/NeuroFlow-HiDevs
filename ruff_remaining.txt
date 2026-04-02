@@ -1,9 +1,0 @@
-﻿backend\api\auth.py:17:22: F821 Undefined name `Field`
-backend\api\auth.py:18:26: F821 Undefined name `Field`
-backend\api\auth.py:31:25: F821 Undefined name `Field`
-backend\api\auth.py:32:23: F821 Undefined name `Field`
-backend\api\auth.py:33:23: F821 Undefined name `Field`
-backend\providers\__init__.py:9:1: E999 SyntaxError: Unexpected token '<<'
-backend\providers\client.py:21:1: E999 SyntaxError: Unexpected token '<<'
-backend\tests\integration\test_pipeline.py:16:23: F821 Undefined name `AsyncGenerator`
-Found 8 errors.
