@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import Depends, FastAPI, Response
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -19,6 +20,7 @@ from backend.api import auth, compare, documents, evaluations, finetune, pipelin
 from backend.config import settings
 from backend.db.health import check_mlflow, check_postgres, check_redis
 from backend.db.pool import close_pool, init_pool
+from backend.db.retention import run_data_retention_job
 from backend.resilience.backpressure import BackpressureManager
 from backend.resilience.circuit_breaker import CircuitBreaker, State
 from backend.resilience.rate_limiter import RateLimiter
@@ -58,15 +60,80 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.limiter = RateLimiter(None)
 
     app.state.backpressure = BackpressureManager(max_buffer_size=100)
+    
+    # Initialize background jobs
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(run_data_retention_job, "cron", hour=3, minute=0)
+    scheduler.start()
+    app.state.scheduler = scheduler
+    
     yield
     # Shutdown
+    if hasattr(app.state, "scheduler"):
+        app.state.scheduler.shutdown()
+        
     logger.info("Shutting down resources...")
     await close_pool()
     if hasattr(app.state, "redis") and app.state.redis:
         await app.state.redis.close()
 
+description = """
+NeuroFlow API helps you manage advanced RAG pipelines, fine-tuned models, and document knowledge bases.
 
-app = FastAPI(lifespan=lifespan, title="NeuroFlow API")
+## Getting Started
+
+1. Set up an authentication client and retrieve a token via `/auth/token`.
+2. Ingest documents using the **Ingestion** endpoints.
+3. Configure your Retrieval-Augmented Generation processes via **Pipelines**.
+4. Retrieve and generate text streams using the **Query** API.
+5. Evaluate your query runs directly using the **Evaluation** API.
+
+For client generation, we provide the `neuroflow` Python SDK.
+"""
+
+tags_metadata = [
+    {
+        "name": "auth",
+        "description": "Authentication and authorization operations.",
+    },
+    {
+        "name": "query",
+        "description": "Operations for performing RAG queries and retrieving streamed chunks.",
+    },
+    {
+        "name": "runs",
+        "description": "Retrieve history and provide human ratings for executed queries.",
+    },
+    {
+        "name": "pipelines",
+        "description": "Design, manage, and analyze RAG generation pipelines and metrics.",
+    },
+    {
+        "name": "compare",
+        "description": "A/B test different RAG pipelines and their results side-by-side.",
+    },
+    {
+        "name": "evaluations",
+        "description": "Evaluate pipeline results utilizing multiple quality metrics (faithfulness, relevancy).",
+    },
+    {
+        "name": "documents",
+        "description": "Ingest and process text and URLs to build your retrieval knowledge base.",
+    },
+    {
+        "name": "finetune",
+        "description": "Start LLM fine-tuning jobs and monitor their progress.",
+    }
+]
+
+app = FastAPI(
+    title="NeuroFlow API",
+    description=description,
+    summary="Advanced RAG and Fine-Tuning developer platform.",
+    version="1.0.0",
+    openapi_tags=tags_metadata,
+    lifespan=lifespan,
+)
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

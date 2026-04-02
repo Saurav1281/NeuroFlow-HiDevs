@@ -1,6 +1,7 @@
 import asyncio
 import os
 import uuid
+from collections.abc import AsyncGenerator
 from unittest.mock import patch
 
 import httpx

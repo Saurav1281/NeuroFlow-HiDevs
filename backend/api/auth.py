@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.config import settings
 
@@ -14,14 +14,33 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 class TokenRequest(BaseModel):
-    client_id: str
-    client_secret: str
+    client_id: str = Field(..., description="The ID of the issuing client.", example="admin-client")
+    client_secret: str = Field(..., description="The secret associated with the client_id.", example="admin-secret")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "client_id": "admin-client",
+                "client_secret": "admin-secret"
+            }
+        }
+    }
 
 
 class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    expires_in: int = 3600
+    access_token: str = Field(..., description="The generated JWT access token.", example="eyJhbGciOiJIUzI1NiIsInR...")
+    token_type: str = Field("bearer", description="The type of token (Bearer).", example="bearer")
+    expires_in: int = Field(3600, description="Expiration time in seconds.", example=3600)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIi...v",
+                "token_type": "bearer",
+                "expires_in": 3600
+            }
+        }
+    }
 
 
 def create_access_token(
@@ -37,7 +56,13 @@ def create_access_token(
     return encoded_jwt
 
 
-@router.post("/token", response_model=TokenResponse)
+@router.post(
+    "/token",
+    response_model=TokenResponse,
+    summary="Get access token",
+    description="Authenticate with client_id and client_secret to receive a JWT access token for API access.",
+    response_description="A Bearer token granting access to authorized endpoint scopes."
+)
 async def login_for_access_token(request: TokenRequest) -> dict[str, str | int]:
     print(f"DEBUG: Token request for {request.client_id}")
     # In a real app, check against database. Here we use mock settings.

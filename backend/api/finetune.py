@@ -7,14 +7,19 @@ from typing import Any
 from fastapi import APIRouter, Security
 
 from backend.db.pool import get_pool
-from backend.security.auth import get_current_user
+from backend.security.auth import ClientProfile, get_current_user
 
 router = APIRouter(prefix="/finetune", tags=["finetune"])
 
 
-@router.post("/jobs")
+@router.post(
+    "/jobs",
+    summary="Create a fine-tuning job",
+    description="Extract high-quality RAG execution pairs from history and generate a training dataset (JSONL) for LLM fine-tuning.",
+    response_description="Details containing the generated job ID, file path, and training pair count."
+)
 async def create_finetune_job(
-    current_user: Any = Security(get_current_user, scopes=["admin"]),  # noqa: ANN401
+    current_user: ClientProfile = Security(get_current_user, scopes=["admin"]),
 ) -> dict[str, Any]:
     """
     Extract high-quality training pairs and create a JSONL file for fine-tuning.

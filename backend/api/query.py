@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from sse_starlette.sse import EventSourceResponse
 
 from backend.providers.client import NeuroFlowClient
-from backend.security.auth import get_current_user
+from backend.security.auth import ClientProfile, get_current_user
 from backend.security.prompt_injection import validate_query_safe
 from backend.security.validators import validate_query
 from pipelines.generation.generator import Generator
@@ -47,14 +47,19 @@ async def get_pipeline_tools() -> tuple[RetrievalPipeline, NeuroFlowClient]:
     return pipeline, llm_client
 
 
-@router.post("")
+@router.post(
+    "",
+    summary="Create a new query run",
+    description="Run a RAG query against a specified pipeline. If `stream=True`, returns a run ID for SSE streaming. If `stream=False`, runs synchronously and returns the complete text. Handles Prompt Injection checks before processing.",
+    response_description="A generation result block (if `stream=False`) or a run ID mapping containing the query state (if `stream=True`)."
+)
 async def create_query(
     query: str = Body(..., embed=True),
     pipeline_id: uuid.UUID = Body(..., embed=True),
     stream: bool = Body(True, embed=True),
     pipeline_tools: tuple[RetrievalPipeline, NeuroFlowClient] = Depends(get_pipeline_tools),
     redis: Redis = Depends(get_redis),
-    current_user: Any = Security(get_current_user, scopes=["query"]),
+    current_user: ClientProfile = Security(get_current_user, scopes=["query"]),
 ) -> dict[str, Any]:
     pipeline, llm_client = pipeline_tools
 
@@ -97,7 +102,12 @@ async def create_query(
     return {"run_id": run_id}
 
 
-@router.get("/{run_id}/stream")
+@router.get(
+    "/{run_id}/stream",
+    summary="Stream query results via SSE",
+    description="Connect to an asynchronous Server-Sent Events stream for a previously created query run ID. Yields chunks of tokens and a completed message with formatted citations.",
+    response_description="An EventSource stream continuously yielding text tokens and final result metadata."
+)
 async def stream_query(
     run_id: str,
     pipeline_tools: tuple[RetrievalPipeline, NeuroFlowClient] = Depends(get_pipeline_tools),

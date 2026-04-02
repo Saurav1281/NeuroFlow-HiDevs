@@ -16,7 +16,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/evaluations", tags=["evaluations"])
 
 
-@router.get("/{run_id}")
+@router.get(
+    "/{run_id}",
+    summary="Get run evaluation",
+    description="Fetch automated evaluation scores (faithfulness, relevance) and metadata for a specific query run.",
+    response_description="Detailed assessment metrics for the query execution."
+)
 async def get_evaluation(run_id: uuid.UUID) -> dict[str, Any]:
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -47,7 +52,12 @@ def get_redis() -> Redis:
     )
 
 
-@router.get("/stream")
+@router.get(
+    "/stream",
+    summary="Stream live evaluations",
+    description="Subscribe to a Server-Sent Events (SSE) stream of real-time evaluation results as they complete.",
+    response_description="An EventSource stream yielding live, real-time evaluation data chunks."
+)
 async def stream_evaluations(redis: Redis = Depends(get_redis)) -> EventSourceResponse:
     """
     SSE endpoint that streams new evaluation records as they are created.

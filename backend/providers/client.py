@@ -18,19 +18,10 @@ from opentelemetry import trace
 from redis.asyncio import Redis
 
 from backend.config import settings
-<<<<<<< HEAD
 from backend.providers.anthropic_provider import AnthropicProvider
 from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
 from backend.providers.openai_provider import OpenAIProvider
 from backend.providers.router import (
-=======
-from backend.providers.base import BaseLLMProvider, ChatMessage, GenerationResult
-from backend.providers.openai_provider import OpenAIProvider
-from backend.providers.anthropic_provider import AnthropicProvider
-from backend.providers.router import (
-    ModelRouter,
-    RoutingCriteria,
->>>>>>> origin/main
     FallbackChain,
     ModelConfig,
     ModelRouter,

@@ -13,3 +13,8 @@ pip install python-multipart
 2026-03-30 23:40:35,554 - __main__ - INFO - Initializing resources...
 2026-03-30 23:40:38,253 - __main__ - ERROR - Failed to initialize resources: [Errno 11001] getaddrinfo failed
 2026-03-30 23:40:38,254 - __main__ - INFO - Shutting down resources...
+<<<<<<< Updated upstream
+=======
+2026-04-01 19:54:31,531 - backend.main - INFO - OpenTelemetry tracing initialized.
+2026-04-01 20:08:18,636 - backend.main - INFO - OpenTelemetry tracing initialized.
+>>>>>>> Stashed changes
