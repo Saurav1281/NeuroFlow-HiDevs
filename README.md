@@ -172,9 +172,7 @@ NeuroFlow is architected with a **Defense-in-Depth** model:
 
 ---
 
-## ⚖️ License
 
-Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
