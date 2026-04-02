@@ -60,22 +60,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.limiter = RateLimiter(None)
 
     app.state.backpressure = BackpressureManager(max_buffer_size=100)
-    
+
     # Initialize background jobs
     scheduler = AsyncIOScheduler()
     scheduler.add_job(run_data_retention_job, "cron", hour=3, minute=0)
     scheduler.start()
     app.state.scheduler = scheduler
-    
+
     yield
     # Shutdown
     if hasattr(app.state, "scheduler"):
         app.state.scheduler.shutdown()
-        
+
     logger.info("Shutting down resources...")
     await close_pool()
     if hasattr(app.state, "redis") and app.state.redis:
         await app.state.redis.close()
+
 
 description = """
 NeuroFlow API helps you manage advanced RAG pipelines, fine-tuned models, and document knowledge bases.
@@ -123,7 +124,7 @@ tags_metadata = [
     {
         "name": "finetune",
         "description": "Start LLM fine-tuning jobs and monitor their progress.",
-    }
+    },
 ]
 
 app = FastAPI(
@@ -138,7 +139,7 @@ app = FastAPI(
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        logger.info(f"SECURITY_DEBUG: Middleware reached for {request.url.path}")
+        logger.debug(f"SECURITY_DEBUG: Middleware reached for {request.url.path}")
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id

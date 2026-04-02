@@ -21,12 +21,12 @@ router = APIRouter(prefix="/pipelines", tags=["pipelines"])
     response_model=dict,
     summary="Create a pipeline",
     description="Create a new RAG pipeline or insert a new version if the name already exists. Parses the comprehensive `PipelineConfig`.",
-    response_description="Confirmation dictionary containing the new pipeline ID, name, and version."
+    response_description="Confirmation dictionary containing the new pipeline ID, name, and version.",
 )
 @handle_errors
 async def create_pipeline(
-    config: PipelineConfig, 
-    current_user: ClientProfile = Security(get_current_user, scopes=["admin"])
+    config: PipelineConfig,
+    current_user: ClientProfile = Security(get_current_user, scopes=["admin"]),
 ) -> dict[str, Any]:
     """
     Create a new pipeline or a new version if name already exists.
@@ -68,7 +68,7 @@ async def create_pipeline(
     response_model=list[dict],
     summary="List all pipelines",
     description="Retrieve a list of the latest active versions of all RAG pipelines, including aggregate scores from their execution history.",
-    response_description="A list of pipeline dictionaries with their most recent configuration and metadata."
+    response_description="A list of pipeline dictionaries with their most recent configuration and metadata.",
 )
 @handle_errors
 async def list_pipelines() -> list[dict[str, Any]]:
@@ -113,7 +113,7 @@ async def list_pipelines() -> list[dict[str, Any]]:
     response_model=dict,
     summary="Get pipeline by ID",
     description="Get the full configuration, version details, and aggregate metric scores (faithfulness, relevance, precision, recall) for a specific pipeline version.",
-    response_description="A dictionary containing the pipeline details and average quality metrics."
+    response_description="A dictionary containing the pipeline details and average quality metrics.",
 )
 @handle_errors
 async def get_pipeline(pipeline_id: uuid.UUID) -> dict[str, Any]:
@@ -161,7 +161,7 @@ async def get_pipeline(pipeline_id: uuid.UUID) -> dict[str, Any]:
     response_model=dict,
     summary="Update pipeline config",
     description="Update a pipeline's configuration by deep merging updates and creating a new version. Preserves history.",
-    response_description="Details of the newly created pipeline version based on the updates."
+    response_description="Details of the newly created pipeline version based on the updates.",
 )
 @handle_errors
 async def update_pipeline(
@@ -227,12 +227,12 @@ async def update_pipeline(
     "/{pipeline_id}",
     summary="Archive pipeline",
     description="Soft-delete a pipeline by setting its status to 'archived', preserving historical metric data.",
-    response_description="Status object confirming the pipeline was archived."
+    response_description="Status object confirming the pipeline was archived.",
 )
 @handle_errors
 async def delete_pipeline(
-    pipeline_id: uuid.UUID, 
-    current_user: ClientProfile = Security(get_current_user, scopes=["admin"])
+    pipeline_id: uuid.UUID,
+    current_user: ClientProfile = Security(get_current_user, scopes=["admin"]),
 ) -> dict[str, Any]:
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -248,7 +248,7 @@ async def delete_pipeline(
     "/{pipeline_id}/runs",
     summary="Get pipeline executed runs",
     description="Retrieve a paginated list of executed runs tied to a specific pipeline, ordered chronologically.",
-    response_description="A paginated list of run summary objects detailing latencies, token counts, and scores."
+    response_description="A paginated list of run summary objects detailing latencies, token counts, and scores.",
 )
 @handle_errors
 async def get_pipeline_runs(
@@ -292,7 +292,7 @@ async def get_pipeline_runs(
     "/{pipeline_id}/analytics",
     summary="Get pipeline analytics",
     description="Fetch aggregate deployment statistics, including P50/P95/P99 latency, cost projections, and daily usage sparklines.",
-    response_description="A dictionary detailing latencies, cost approximations, quality, and usage over time."
+    response_description="A dictionary detailing latencies, cost approximations, quality, and usage over time.",
 )
 @handle_errors
 async def get_pipeline_analytics(pipeline_id: uuid.UUID) -> dict[str, Any]:
@@ -363,7 +363,7 @@ async def get_pipeline_analytics(pipeline_id: uuid.UUID) -> dict[str, Any]:
     "/{pipeline_id}/suggestions",
     summary="Get pipeline architecture suggestions",
     description="Analyze recent performance metrics and execute a rule-based inference engine to propose architectural optimizations.",
-    response_description="A list of actionable optimization suggestions with specific component targets and rationales."
+    response_description="A list of actionable optimization suggestions with specific component targets and rationales.",
 )
 @handle_errors
 async def get_pipeline_suggestions(pipeline_id: uuid.UUID) -> dict[str, Any]:

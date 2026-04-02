@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 SECRET_PATTERNS: dict[str, str] = {
     "AWS Access Key": r"AKIA[0-9A-Z]{16}",
     "Generic API Key": (
-        r"['\"]?(?:api|secret|token|key|password)['\"]?\s*[:=]\s*"
-        r"['\"][A-Za-z0-9/+]{20,}['\"]"
+        r"['\"]?(?:api|secret|token|key|password)['\"]?\s*[:=]\s*" r"['\"][A-Za-z0-9/+]{20,}['\"]"
     ),
     "Private Key PEM": r"-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----",
     "JWT Token": r"(?:^|(?<=\s))ey[A-Za-z0-9-_]+\.ey[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+",

@@ -16,7 +16,7 @@ router = APIRouter(prefix="/finetune", tags=["finetune"])
     "/jobs",
     summary="Create a fine-tuning job",
     description="Extract high-quality RAG execution pairs from history and generate a training dataset (JSONL) for LLM fine-tuning.",
-    response_description="Details containing the generated job ID, file path, and training pair count."
+    response_description="Details containing the generated job ID, file path, and training pair count.",
 )
 async def create_finetune_job(
     current_user: ClientProfile = Security(get_current_user, scopes=["admin"]),

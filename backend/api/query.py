@@ -51,7 +51,7 @@ async def get_pipeline_tools() -> tuple[RetrievalPipeline, NeuroFlowClient]:
     "",
     summary="Create a new query run",
     description="Run a RAG query against a specified pipeline. If `stream=True`, returns a run ID for SSE streaming. If `stream=False`, runs synchronously and returns the complete text. Handles Prompt Injection checks before processing.",
-    response_description="A generation result block (if `stream=False`) or a run ID mapping containing the query state (if `stream=True`)."
+    response_description="A generation result block (if `stream=False`) or a run ID mapping containing the query state (if `stream=True`).",
 )
 async def create_query(
     query: str = Body(..., embed=True),
@@ -106,7 +106,7 @@ async def create_query(
     "/{run_id}/stream",
     summary="Stream query results via SSE",
     description="Connect to an asynchronous Server-Sent Events stream for a previously created query run ID. Yields chunks of tokens and a completed message with formatted citations.",
-    response_description="An EventSource stream continuously yielding text tokens and final result metadata."
+    response_description="An EventSource stream continuously yielding text tokens and final result metadata.",
 )
 async def stream_query(
     run_id: str,

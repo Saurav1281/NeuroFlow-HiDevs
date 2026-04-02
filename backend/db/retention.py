@@ -4,6 +4,7 @@ from backend.db.pool import get_pool
 
 logger = structlog.get_logger(__name__)
 
+
 async def run_data_retention_job() -> None:
     """
     Background job to delete stale, old data for cost savings and DB health.
@@ -18,7 +19,7 @@ async def run_data_retention_job() -> None:
         async with pool.acquire() as conn:
             # 1. Delete pipeline_runs older than 90 days with no evaluation
             # Assuming 'status' is tracked, otherwise we just delete by age and join.
-            # If status doesn't exist on pipeline_runs, Postgres will ignore that filter or error. 
+            # If status doesn't exist on pipeline_runs, Postgres will ignore that filter or error.
             # We'll omit 'status = complete' if it errors, but let's assume it exists or we mock it.
             # The prompt requested: "where status = 'complete' and no associated evaluations row"
             try:
@@ -44,7 +45,9 @@ async def run_data_retention_job() -> None:
                       )
                     """
                 )
-                logger.info("Deleted old pipeline runs (without status check)", deleted=runs_deleted)
+                logger.info(
+                    "Deleted old pipeline runs (without status check)", deleted=runs_deleted
+                )
 
             # 2. Deletes evaluations older than 180 days
             evals_deleted = await conn.execute(
@@ -65,7 +68,7 @@ async def run_data_retention_job() -> None:
                 """
             )
             logger.info("Deleted archived document chunks", deleted=chunks_deleted)
-            
+
             logger.info("Data retention job completed successfully")
 
     except Exception as e:

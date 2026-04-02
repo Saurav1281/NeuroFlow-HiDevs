@@ -15,7 +15,7 @@ router = APIRouter(prefix="/runs", tags=["runs"])
     "/{run_id}/rating",
     summary="Submit user rating",
     description="Provide human feedback (1-5) for a specific run. Checks against automated evaluation scores and flags for calibration if the difference is significant.",
-    response_description="Confirmation of the recorded user rating."
+    response_description="Confirmation of the recorded user rating.",
 )
 async def update_user_rating(
     run_id: str, rating: int = Body(..., ge=1, le=5, embed=True)

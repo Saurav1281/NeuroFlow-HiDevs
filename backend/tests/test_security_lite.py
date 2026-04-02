@@ -15,7 +15,9 @@ async def get_current_user(
 
 
 @app.get("/test")
-async def read_test(user: dict[str, Any] = Security(get_current_user, scopes=["admin"])) -> dict[str, Any]:
+async def read_test(
+    user: dict[str, Any] = Security(get_current_user, scopes=["admin"]),
+) -> dict[str, Any]:
     return user
 
 

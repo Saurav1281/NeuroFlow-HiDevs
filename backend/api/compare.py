@@ -103,7 +103,7 @@ async def run_pipeline_task(
     "/compare",
     summary="Compare pipelines",
     description="Run a single query through two different pipelines (A and B) simultaneously and return latency, used chunks, and generated text side-by-side.",
-    response_description="Comparative evaluation matrix between dual pipeline executions."
+    response_description="Comparative evaluation matrix between dual pipeline executions.",
 )
 @handle_errors
 async def compare_pipelines(

@@ -24,15 +24,12 @@ router = APIRouter(prefix="/documents", tags=["documents"])
     "",
     summary="Upload and ingest documents",
     description="Upload raw files (PDF, DOCX, CSV, Image, TXT) to the knowledge base. Documents are scanned for secrets, checked for prompt injection, and chunked in the background.",
-    response_description="A summary of the uploaded documents and their processing status."
+    response_description="A summary of the uploaded documents and their processing status.",
 )
 @handle_errors
 async def upload_documents(
     files: list[UploadFile] = File(...),
-    current_user: ClientProfile = Security(
-        get_current_user, 
-        scopes=["ingest"]
-    ),
+    current_user: ClientProfile = Security(get_current_user, scopes=["ingest"]),
 ) -> dict[str, Any]:
     """
     Simulate document upload and ingestion with instrumentation and security hardening.
@@ -131,7 +128,7 @@ async def upload_documents(
     "/ingest",
     summary="Ingest a document from a URL",
     description="Provide a public URL to be scraped, processed, and chunked into the knowledge base. Includes SSRF protection.",
-    response_description="A confirmation of URL ingestion initiation and the generated document ID."
+    response_description="A confirmation of URL ingestion initiation and the generated document ID.",
 )
 @handle_errors
 async def ingest_url(
@@ -152,7 +149,7 @@ async def ingest_url(
     "",
     summary="List all documents",
     description="Retrieve a paginated list of all ingested documents, their status, and chunks processed.",
-    response_description="A list of document dicts containing metadata and status."
+    response_description="A list of document dicts containing metadata and status.",
 )
 @handle_errors
 async def list_documents() -> list[dict[str, Any]]:
@@ -181,7 +178,7 @@ async def list_documents() -> list[dict[str, Any]]:
     "/{document_id}/chunks",
     summary="Get document chunks",
     description="Retrieve all extracted text chunks for a specified document, ordered by chunk index.",
-    response_description="A list of chunk dicts including extracted text and token counts."
+    response_description="A list of chunk dicts including extracted text and token counts.",
 )
 @handle_errors
 async def get_document_chunks(document_id: uuid.UUID) -> list[dict[str, Any]]:
@@ -210,7 +207,7 @@ async def get_document_chunks(document_id: uuid.UUID) -> list[dict[str, Any]]:
     "/chunks/search",
     summary="Search similar chunks",
     description="Perform a semantic vector search to find chunks similar to a target `chunk_id`.",
-    response_description="A list of similar chunks ranked by vector similarity score."
+    response_description="A list of similar chunks ranked by vector similarity score.",
 )
 @handle_errors
 async def search_similar_chunks(chunk_id: uuid.UUID, limit: int = 5) -> list[dict[str, Any]]:

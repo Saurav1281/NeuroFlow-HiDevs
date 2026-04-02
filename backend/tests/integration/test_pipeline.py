@@ -52,11 +52,11 @@ async def ingest_test_document(
 
 
 async def wait_for_status(
-    client: httpx.AsyncClient, 
-    headers: dict[str, str], 
-    doc_id: str, 
-    target_status: str, 
-    timeout: int = 60
+    client: httpx.AsyncClient,
+    headers: dict[str, str],
+    doc_id: str,
+    target_status: str,
+    timeout: int = 60,
 ) -> bool:
     start_time = asyncio.get_event_loop().time()
     while asyncio.get_event_loop().time() - start_time < timeout:
@@ -73,9 +73,7 @@ async def wait_for_status(
 
 
 @pytest.mark.asyncio
-async def test_full_rag_pipeline(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_full_rag_pipeline(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     # 1. Upload a known document
     doc_id = await ingest_test_document(client, auth_headers, "tests/fixtures/test_doc.pdf")
 
@@ -136,9 +134,7 @@ async def test_full_rag_pipeline(
 
 
 @pytest.mark.asyncio
-async def test_deduplication(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_deduplication(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     # 1. Upload first time
     await ingest_test_document(client, auth_headers, "tests/fixtures/test_doc.pdf")
 
@@ -166,9 +162,7 @@ async def test_deduplication(
 
 
 @pytest.mark.asyncio
-async def test_circuit_breaker(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_circuit_breaker(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     # Mock the LLM provider to return 500 errors 5 times
     # This requires mocking the NeuroFlowClient or the specific provider.
     with patch(
@@ -193,9 +187,7 @@ async def test_circuit_breaker(
 
 
 @pytest.mark.asyncio
-async def test_rate_limiting(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_rate_limiting(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     # Send 70 requests/minute to /query
     # We'll send them quickly.
     responses = []
@@ -214,9 +206,7 @@ async def test_rate_limiting(
 
 
 @pytest.mark.asyncio
-async def test_prompt_injection(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_prompt_injection(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     response = await client.post(
         "/query",
         json={
@@ -232,9 +222,7 @@ async def test_prompt_injection(
 
 
 @pytest.mark.asyncio
-async def test_pipeline_comparison(
-    client: httpx.AsyncClient, auth_headers: dict[str, str]
-) -> None:
+async def test_pipeline_comparison(client: httpx.AsyncClient, auth_headers: dict[str, str]) -> None:
     # Create two pipelines or use existing ones (simulated)
     # Verify both return results
     response = await client.post(

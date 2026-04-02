@@ -10,10 +10,10 @@ from backend.providers.client import NeuroFlowClient
 logger = logging.getLogger(__name__)
 
 INJECTION_PATTERNS = [
-    r"ignore (all |previous |the |your )?instructions",
+    r"ignore (all |previous |the |your )*instructions",
     r"you are now",
     r"new (system |)prompt",
-    r"disregard (the |all |previous |everything)",
+    r"disregard (the |all |previous |everything |)*",
     r"forget (everything|all|previous)",
     r"act as (if |a |an )",
     r"\[\[(system|SYSTEM)\]\]",
